@@ -62,6 +62,31 @@ const penumbraLayer = new GeoJSONLayer({
   url: "./data/penumbra.geojson",
 });
 
+const durationLayer = new GeoJSONLayer({
+  renderer: new SimpleRenderer({
+    symbol: new SimpleFillSymbol({
+      color: new Color({
+        r: 0,
+        g: 0,
+        b: 0,
+        a: 0,
+      }),
+      outline: {
+        color: new Color({
+          r: 100,
+          g: 100,
+          b: 100,
+          a: 1,
+        }),
+        width: 0.5,
+      },
+    }),
+  }),
+  title: "Duration",
+  url: "./data/duration.geojson",
+  visible: false,
+});
+
 const totalityLayer = new GeoJSONLayer({
   renderer: new SimpleRenderer({
     symbol: new SimpleFillSymbol({
@@ -102,7 +127,7 @@ const festivalsLayer = new CSVLayer({
 });
 
 const map = new Map({
-  layers: [penumbraLayer, totalityLayer, cloudCoverLayer, festivalsLayer, centerLayer],
+  layers: [penumbraLayer, totalityLayer, durationLayer, cloudCoverLayer, festivalsLayer, centerLayer],
   basemap: "streets-vector",
 });
 
