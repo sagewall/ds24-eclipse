@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/esri.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>2024 Eclipse</title>
+  </head>
+  <body>
+    <calcite-shell content-behind>
+      <calcite-navigation navigation-action slot="header" id="nav">
+        <calcite-navigation-logo
+          href=""
+          icon="image-layer"
+          alt="Application logo"
+          slot="logo"
+          heading="ArcGIS Maps SDK for JavaScript: Bring in Data from Anywhere"
+          description="Esri Developer Summit 2024"
+        ></calcite-navigation-logo>
+        <calcite-action-pad layout="horizontal" expand-disabled slot="content-end">
+          <calcite-action id="toggle-modal" text="About this application" icon="information"></calcite-action>
+        </calcite-action-pad>
+
+        <calcite-tooltip placement="bottom" reference-element="toggle-modal" close-on-click slot="content-end"
+          >About this application</calcite-tooltip
+        >
+      </calcite-navigation>
+
+      <calcite-shell-panel slot="panel-end" display-mode="float">
+        <calcite-panel heading="Maps SDK for JavaScript" description="Showcased product">
+          <calcite-action
+            id="toggle-instructions"
+            text="Instructions"
+            icon="lightbulb"
+            slot="header-actions-end"
+          ></calcite-action>
+          <calcite-tooltip placement="bottom" reference-element="toggle-instructions" slot="header-actions-end"
+            >A quick get-going hint about this demo</calcite-tooltip
+          >
+          <calcite-block collapsible heading="Layer effects" description="Adjust blur, highlight, and order">
+            <calcite-icon scale="s" slot="icon" icon="effects"></calcite-icon>
+            <calcite-notice open>
+              <div slot="message">Use layer effects sparingly, for emphasis</div>
+            </calcite-notice>
+          </calcite-block>
+
+          <calcite-block collapsible heading="Symbology" description="Select type, color, and transparency">
+            <calcite-icon scale="s" slot="icon" icon="map-pin"></calcite-icon>
+            <calcite-label>
+              Effect type
+              <calcite-segmented-control width="full">
+                <calcite-segmented-control-item value="Blur"></calcite-segmented-control-item>
+                <calcite-segmented-control-item checked value="Highlight"></calcite-segmented-control-item>
+              </calcite-segmented-control>
+            </calcite-label>
+
+            <calcite-label>
+              Something
+              <calcite-input placeholder="A great placeholder"></calcite-input>
+            </calcite-label>
+            <calcite-label>
+              Something numerical<calcite-input-number
+                value="25"
+                placeholder="--"
+                suffix-text="%"
+                alignment="end"
+              ></calcite-input-number>
+            </calcite-label>
+          </calcite-block>
+
+          <calcite-fab slot="fab" text="Add something" text-enabled></calcite-fab>
+
+          <calcite-notice open scale="s" slot="footer">
+            <span slot="title">What is being demonstrated?</span>
+            <span slot="message">
+              This demonstration application showcases
+              <strong>feature x</strong>, <strong>feature y</strong>, and <strong>feature z</strong>, with a small bit
+              of additional context about the demo.
+            </span>
+          </calcite-notice>
+        </calcite-panel>
+      </calcite-shell-panel>
+
+      <div id="viewDiv"></div>
+    </calcite-shell>
+
+    <!-- Demo template interactive elements -->
+    <calcite-alert open icon="effects">
+      <div slot="title">Esri Developer Summit 2024</div>
+      <div slot="message">Welcome to beautiful Palm Springs!</div>
+    </calcite-alert>
+
+    <calcite-modal id="modal">
+      <div slot="header">About this application</div>
+      <div slot="content">
+        <calcite-notice open>
+          <span slot="title"
+            >This demonstration application is a companion resource to the "My demo application" session at Esri
+            Developer Summit 2024.
+          </span>
+        </calcite-notice>
+        This example illustrates
+        <calcite-link target="_blank" href=""> a great topic</calcite-link>.
+        <ul>
+          <li>Main point 1.</li>
+          <li>Main point 2.</li>
+          <li>Main point 3.</li>
+        </ul>
+        <calcite-link target="_blank" href="">Learn more</calcite-link> in the
+        <calcite-link target="_blank" href=""> documentation</calcite-link>.
+        <hr />
+        <calcite-link target="_blank" href="">Application source code</calcite-link>
+        is available in the
+        <calcite-link target="_blank" href="https://github.com/EsriDevEvents/"
+          >Esri Developer Events GitHub organization</calcite-link
+        >.
+        <hr />
+        <calcite-link target="_blank" href="">Map data </calcite-link> is sourced from Esri Data and Maps /
+        <calcite-link target="_blank" href="https://livingatlas.arcgis.com/en/home/"
+          >ArcGIS Living Atlas of the World</calcite-link
+        >.
+      </div>
+    </calcite-modal>
+
+    <calcite-sheet id="sheet" display-mode="float" width-scale="m">
+      <calcite-panel
+        heading="Esri Developer Summit 2024"
+        description="Helpful conference links"
+        closable
+        id="sheet-panel"
+      >
+        <calcite-menu layout="vertical" label="2024 Developer Summit Menu">
+          <calcite-menu-item
+            text="2024 Developer Summit Overview"
+            icon-end="launch"
+            href="https://www.esri.com/en-us/about/events/devsummit/overview"
+            target="_blank"
+          ></calcite-menu-item>
+          <calcite-menu-item
+            text="Esri Developer Events GitHub"
+            icon-end="launch"
+            href="https://github.com/EsriDevEvents"
+            target="_blank"
+          ></calcite-menu-item>
+          <calcite-menu-item
+            text="Esri.com"
+            icon-end="launch"
+            href="https://esri.com"
+            target="_blank"
+          ></calcite-menu-item>
+        </calcite-menu>
+        <calcite-notice open slot="footer" width="full" scale="s">
+          <span slot="title">Note</span>
+          <span slot="message"
+            >This is a demonstration application showcasing platform functionality. While Esri strives to ensure the
+            sample is accurate, it may not reflect implementation behavior in certain environments.</span
+          >
+        </calcite-notice>
+      </calcite-panel>
+    </calcite-sheet>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
