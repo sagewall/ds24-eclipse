@@ -89,20 +89,19 @@ const durationLayer = new GeoJSONLayer({
 });
 
 const totalityLayer = new GeoJSONLayer({
+  blendMode: "multiply",
   renderer: new SimpleRenderer({
     symbol: new SimpleFillSymbol({
       color: new Color({
-        r: 0,
-        g: 0,
-        b: 0,
-        a: 0.5,
+        r: 200,
+        g: 200,
+        b: 200,
       }),
       outline: {
         color: new Color({
-          r: 0,
-          g: 0,
-          b: 0,
-          a: 0.5,
+          r: 100,
+          g: 100,
+          b: 100,
         }),
         width: 1,
       },
