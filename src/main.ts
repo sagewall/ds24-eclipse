@@ -149,6 +149,23 @@ const layerListExpand = new Expand({
 
 view.ui.add(layerListExpand, "top-left");
 
+// Create popup templates for each layer
+view.when(async () => {
+  await centerLayer.load();
+  await cloudCoverLayer.load();
+  await durationLayer.load();
+  await festivalsLayer.load();
+  await penumbraLayer.load();
+  await totalityLayer.load();
+
+  centerLayer.popupTemplate = centerLayer.createPopupTemplate();
+  cloudCoverLayer.popupTemplate = cloudCoverLayer.createPopupTemplate();
+  durationLayer.popupTemplate = durationLayer.createPopupTemplate();
+  festivalsLayer.popupTemplate = festivalsLayer.createPopupTemplate();
+  penumbraLayer.popupTemplate = penumbraLayer.createPopupTemplate();
+  totalityLayer.popupTemplate = totalityLayer.createPopupTemplate();
+});
+
 // Set up the user interface
 function setUp() {
   const toggleModalEl = document.getElementById("toggle-modal") as HTMLCalciteActionElement;
