@@ -60,6 +60,7 @@ const penumbraLayer = new GeoJSONLayer({
   }),
   title: "Penumbra",
   url: "./data/penumbra.geojson",
+  visible: false,
 });
 
 const durationLayer = new GeoJSONLayer({
