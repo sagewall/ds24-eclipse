@@ -445,7 +445,6 @@ async function queryInformation(
 
       const durationQueryResult = await durationlayer.queryFeatures(durationQuery);
 
-      console.log(durationQueryResult);
       if (durationQueryResult.features.length) {
         const averageDurationP = document.createElement("p");
         averageDurationP.textContent = `Approximate duration of the total eclipse at the center of the map: ${Math.round(
