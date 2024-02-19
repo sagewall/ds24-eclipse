@@ -284,7 +284,7 @@ view.when(async () => {
   reactiveUtils.watch(
     () => view.stationary,
     (stationary) => {
-      stationary && queryInformation(cityTimesLayer, penumbraLayer);
+      stationary && queryInformation(cityTimesLayer, penumbraLayer, durationLayer);
     },
   );
 });
@@ -378,7 +378,11 @@ async function createCityTimesLayer(): Promise<GeoJSONLayer> {
 }
 
 // Query information about the map view
-async function queryInformation(cityTimesLayer: GeoJSONLayer, penumbraLayer: GeoJSONLayer) {
+async function queryInformation(
+  cityTimesLayer: GeoJSONLayer,
+  penumbraLayer: GeoJSONLayer,
+  durationlayer: GeoJSONLayer,
+) {
   const { scale } = view;
   const result = document.createElement("p");
   const queryResultsPanel = document.querySelector("#query-results-panel");
@@ -408,13 +412,6 @@ async function queryInformation(cityTimesLayer: GeoJSONLayer, penumbraLayer: Geo
       const averageStartTime = new Date(startTimes.reduce((a, b) => a + b, 0) / startTimes.length);
       const averageEndTime = new Date(endTimes.reduce((a, b) => a + b, 0) / endTimes.length);
 
-      const penumbraQuery = new Query({
-        geometry: view.center,
-        outFields: ["Obscuration"],
-      });
-
-      const penumbraQueryResult = await penumbraLayer.queryFeatures(penumbraQuery);
-
       queryResultsPanel.innerHTML = "";
       const averageStartTimeP = document.createElement("p");
       averageStartTimeP.textContent = `Average Start Time: ${averageStartTime.toLocaleTimeString()} (${
@@ -428,11 +425,34 @@ async function queryInformation(cityTimesLayer: GeoJSONLayer, penumbraLayer: Geo
       })`;
       queryResultsPanel.appendChild(averageEndTimeP);
 
+      const penumbraQuery = new Query({
+        geometry: view.center,
+        outFields: ["Obscuration"],
+      });
+
+      const penumbraQueryResult = await penumbraLayer.queryFeatures(penumbraQuery);
+
       const averageObscurationP = document.createElement("p");
       averageObscurationP.textContent = `Obscuration at the center of the map: ${Math.round(
         penumbraQueryResult.features[0].attributes.Obscuration * 100,
       )}%`;
       queryResultsPanel.appendChild(averageObscurationP);
+
+      const durationQuery = new Query({
+        geometry: view.center,
+        outFields: ["Duration"],
+      });
+
+      const durationQueryResult = await durationlayer.queryFeatures(durationQuery);
+
+      console.log(durationQueryResult);
+      if (durationQueryResult.features.length) {
+        const averageDurationP = document.createElement("p");
+        averageDurationP.textContent = `Approximate duration of the total eclipse at the center of the map: ${Math.round(
+          durationQueryResult.features[0].attributes.Duration,
+        )} seconds`;
+        queryResultsPanel.appendChild(averageDurationP);
+      }
     }
   }
 }
