@@ -43,6 +43,7 @@ const view = new MapView({
 view.when(async () => {
   // Create a GeoJSON layers for the eclipse
   const centerLayer = new GeoJSONLayer({
+    outFields: ["*"],
     renderer: new SimpleRenderer({
       symbol: new SimpleLineSymbol({
         color: "red",
@@ -54,6 +55,7 @@ view.when(async () => {
   });
 
   const durationLayer = new GeoJSONLayer({
+    outFields: ["*"],
     renderer: new SimpleRenderer({
       symbol: new SimpleFillSymbol({
         color: new Color({
@@ -79,6 +81,7 @@ view.when(async () => {
   });
 
   const penumbraLayer = new GeoJSONLayer({
+    outFields: ["*"],
     renderer: new SimpleRenderer({
       symbol: new SimpleFillSymbol({
         color: new Color({
@@ -113,6 +116,7 @@ view.when(async () => {
 
   const totalityLayer = new GeoJSONLayer({
     blendMode: "multiply",
+    outFields: ["*"],
     renderer: new SimpleRenderer({
       symbol: new SimpleFillSymbol({
         color: new Color({
@@ -161,6 +165,7 @@ view.when(async () => {
   const cloudCoverLayer = new CSVLayer({
     labelingInfo: [cloudCoverLabelClass],
     opacity: 0.8,
+    outFields: ["*"],
     renderer: new ClassBreaksRenderer({
       classBreakInfos: [
         {
@@ -184,6 +189,7 @@ view.when(async () => {
 
   // Create a CSVLayer for festivals
   const festivalsLayer = new CSVLayer({
+    outFields: ["*"],
     renderer: new SimpleRenderer({
       symbol: new WebStyleSymbol({
         name: "amusement-park",
@@ -345,6 +351,7 @@ async function createCityTimesLayer(): Promise<GeoJSONLayer> {
 
   const cityTimes = new GeoJSONLayer({
     minScale: 1000000,
+    outFields: ["*"],
     renderer: new SimpleRenderer({
       symbol: new SimpleMarkerSymbol({
         color: new Color({
@@ -383,10 +390,6 @@ async function queryInformation(cityTimesLayer: GeoJSONLayer, penumbraLayer: Geo
     }
   } else {
     if (queryResultsPanel) {
-      // why arn't any fields available in the layer view?
-      // const cityTimesLayerView = await view.whenLayerView(layer);
-      // console.log(cityTimesLayerView.availableFields);
-
       const cityTimesQuery = new Query({
         geometry: view.extent,
         outFields: ["t0", "t4"],
@@ -394,6 +397,7 @@ async function queryInformation(cityTimesLayer: GeoJSONLayer, penumbraLayer: Geo
 
       const startTimes: number[] = [];
       const endTimes: number[] = [];
+
       const cityTimesQueryResult = await cityTimesLayer.queryFeatures(cityTimesQuery);
       cityTimesQueryResult.features.forEach((feature) => {
         const { t0, t4 } = feature.attributes;
