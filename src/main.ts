@@ -98,7 +98,7 @@ view.when(async () => {
       }),
       visualVariables: [
         new OpacityVariable({
-          field: "Obscuratio",
+          field: "Obscuration",
           stops: [
             { value: 100, opacity: 50 },
             { value: 0, opacity: 0 },
@@ -406,7 +406,7 @@ async function queryInformation(cityTimesLayer: GeoJSONLayer, penumbraLayer: Geo
 
       const penumbraQuery = new Query({
         geometry: view.center,
-        outFields: ["Obscuratio"],
+        outFields: ["Obscuration"],
       });
 
       const penumbraQueryResult = await penumbraLayer.queryFeatures(penumbraQuery);
@@ -426,7 +426,7 @@ async function queryInformation(cityTimesLayer: GeoJSONLayer, penumbraLayer: Geo
 
       const averageObscurationP = document.createElement("p");
       averageObscurationP.textContent = `Obscuration at the center of the map: ${Math.round(
-        penumbraQueryResult.features[0].attributes.Obscuratio * 100,
+        penumbraQueryResult.features[0].attributes.Obscuration * 100,
       )}%`;
       queryResultsPanel.appendChild(averageObscurationP);
     }
