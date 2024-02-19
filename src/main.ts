@@ -37,17 +37,6 @@ const view = new MapView({
   center: [-85, 35],
 });
 
-// Create a LayerList widget and add it to the view's UI
-const layerList = new LayerList({
-  view,
-});
-const layerListExpand = new Expand({
-  view,
-  content: layerList,
-});
-
-view.ui.add(layerListExpand, "top-left");
-
 // Create popup templates for each layer
 view.when(async () => {
   // Create a GeoJSON layers for the eclipse
@@ -229,6 +218,13 @@ view.when(async () => {
   festivalsLayer.popupTemplate = festivalsLayer.createPopupTemplate();
   penumbraLayer.popupTemplate = penumbraLayer.createPopupTemplate();
   totalityLayer.popupTemplate = totalityLayer.createPopupTemplate();
+
+  // Create a LayerList widget
+  new LayerList({
+    container: "layer-list-panel",
+    view,
+    visibilityAppearance: "checkbox",
+  });
 });
 
 async function createCityTimesLayer(): Promise<GeoJSONLayer> {
