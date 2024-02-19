@@ -1,5 +1,5 @@
 export type CityTimes = {
-  ECLIPSE: number[];
+  ECLIPSE: string[];
   LAT: number;
   LON: number;
   NAME: string;

@@ -1,5 +1,6 @@
 import Color from "@arcgis/core/Color";
 import Map from "@arcgis/core/Map";
+import * as reactiveUtils from "@arcgis/core/core/reactiveUtils";
 import CSVLayer from "@arcgis/core/layers/CSVLayer";
 import GeoJSONLayer from "@arcgis/core/layers/GeoJSONLayer";
 import LabelClass from "@arcgis/core/layers/support/LabelClass";
@@ -7,6 +8,7 @@ import ClassBreaksRenderer from "@arcgis/core/renderers/ClassBreaksRenderer";
 import SimpleRenderer from "@arcgis/core/renderers/SimpleRenderer";
 import OpacityVariable from "@arcgis/core/renderers/visualVariables/OpacityVariable";
 import esriRequest from "@arcgis/core/request";
+import Query from "@arcgis/core/rest/support/Query";
 import SimpleFillSymbol from "@arcgis/core/symbols/SimpleFillSymbol";
 import SimpleLineSymbol from "@arcgis/core/symbols/SimpleLineSymbol";
 import SimpleMarkerSymbol from "@arcgis/core/symbols/SimpleMarkerSymbol";
@@ -228,6 +230,14 @@ view.when(async () => {
     },
     visibilityAppearance: "checkbox",
   });
+
+  // Watch for when the view is stationary and query information
+  reactiveUtils.watch(
+    () => view.stationary,
+    (stationary) => {
+      stationary && queryInformation(cityTimesLayer, penumbraLayer);
+    },
+  );
 });
 
 async function createCityTimesLayer(): Promise<GeoJSONLayer> {
@@ -250,11 +260,11 @@ async function createCityTimesLayer(): Promise<GeoJSONLayer> {
       properties: {
         name: city.NAME,
         state: city.STATE,
+        t0: city.ECLIPSE[0],
         t1: city.ECLIPSE[1],
         t2: city.ECLIPSE[2],
         t3: city.ECLIPSE[3],
         t4: city.ECLIPSE[4],
-        t5: city.ECLIPSE[5],
       },
     });
   });
@@ -290,6 +300,79 @@ async function createCityTimesLayer(): Promise<GeoJSONLayer> {
   });
 
   return cityTimes;
+}
+
+// Query information about the map view
+async function queryInformation(cityTimesLayer: GeoJSONLayer, penumbraLayer: GeoJSONLayer) {
+  const { scale } = view;
+  const result = document.createElement("p");
+  const queryResultsPanel = document.querySelector("#query-results-panel");
+  if (scale > 1000000) {
+    if (queryResultsPanel) {
+      queryResultsPanel.innerHTML = "";
+      result.textContent = "Zoom in to see more information";
+      queryResultsPanel.appendChild(result);
+    }
+  } else {
+    if (queryResultsPanel) {
+      // why arn't any fields available in the layer view?
+      // const cityTimesLayerView = await view.whenLayerView(layer);
+      // console.log(cityTimesLayerView.availableFields);
+
+      const cityTimesQuery = new Query({
+        geometry: view.extent,
+        outFields: ["t0", "t4"],
+      });
+
+      const startTimes: number[] = [];
+      const endTimes: number[] = [];
+      const cityTimesQueryResult = await cityTimesLayer.queryFeatures(cityTimesQuery);
+      cityTimesQueryResult.features.forEach((feature) => {
+        const { t0, t4 } = feature.attributes;
+        const t0Array = t0.split(":");
+        const t0Hour = t0Array[0];
+        const t0Minute = t0Array[1];
+        const t0Second = t0Array[2];
+
+        const t4Array = t4.split(":");
+        const t4Hour = t4Array[0];
+        const t4Minute = t4Array[1];
+        const t4Second = t4Array[2];
+
+        startTimes.push(new Date(Date.UTC(2024, 4, 8, t0Hour, t0Minute, t0Second)).getTime());
+        endTimes.push(new Date(Date.UTC(2024, 4, 8, t4Hour, t4Minute, t4Second)).getTime());
+      });
+
+      const averageStartTime = new Date(startTimes.reduce((a, b) => a + b, 0) / startTimes.length);
+      const averageEndTime = new Date(endTimes.reduce((a, b) => a + b, 0) / endTimes.length);
+
+      const penumbraQuery = new Query({
+        geometry: view.center,
+        outFields: ["Obscuratio"],
+      });
+
+      const penumbraQueryResult = await penumbraLayer.queryFeatures(penumbraQuery);
+
+      queryResultsPanel.innerHTML = "";
+      const averageStartTimeP = document.createElement("p");
+      averageStartTimeP.textContent = `Average Start Time: ${averageStartTime.toLocaleTimeString()} (${
+        Intl.DateTimeFormat().resolvedOptions().timeZone
+      })`;
+      queryResultsPanel.appendChild(averageStartTimeP);
+
+      const averageEndTimeP = document.createElement("p");
+      averageEndTimeP.textContent = `Average End Time: ${averageEndTime.toLocaleTimeString()} (${
+        Intl.DateTimeFormat().resolvedOptions().timeZone
+      })`;
+      queryResultsPanel.appendChild(averageEndTimeP);
+
+      const averageObscurationP = document.createElement("p");
+      averageObscurationP.textContent = `Obscuration at the center of the map: ${Math.round(
+        penumbraQueryResult.features[0].attributes.Obscuratio * 100,
+      )}%`;
+      queryResultsPanel.appendChild(averageObscurationP);
+    }
+  }
 }
 
 // Set up the user interface
