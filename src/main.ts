@@ -223,6 +223,10 @@ view.when(async () => {
   new LayerList({
     container: "layer-list-panel",
     view,
+    visibleElements: {
+      collapseButton: true,
+      heading: true,
+    },
     visibilityAppearance: "checkbox",
   });
 });
