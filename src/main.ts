@@ -4,6 +4,7 @@ import * as reactiveUtils from "@arcgis/core/core/reactiveUtils";
 import CSVLayer from "@arcgis/core/layers/CSVLayer";
 import GeoJSONLayer from "@arcgis/core/layers/GeoJSONLayer";
 import LabelClass from "@arcgis/core/layers/support/LabelClass";
+import FieldsContent from "@arcgis/core/popup/content/FieldsContent";
 import ClassBreaksRenderer from "@arcgis/core/renderers/ClassBreaksRenderer";
 import SimpleRenderer from "@arcgis/core/renderers/SimpleRenderer";
 import OpacityVariable from "@arcgis/core/renderers/visualVariables/OpacityVariable";
@@ -213,6 +214,48 @@ view.when(async () => {
   await totalityLayer.load();
 
   cityTimesLayer.popupTemplate = cityTimesLayer.createPopupTemplate();
+  cityTimesLayer.popupTemplate.content = [
+    new FieldsContent({
+      fieldInfos: [
+        {
+          fieldName: "t0",
+          format: {
+            dateFormat: "short-date-short-time",
+          },
+          label: "Start time",
+        },
+        {
+          fieldName: "t1",
+          format: {
+            dateFormat: "short-date-short-time",
+          },
+          label: "50% to maximum obscuration",
+        },
+        {
+          fieldName: "t2",
+          format: {
+            dateFormat: "short-date-short-time",
+          },
+          label: "Maximum obscuration",
+        },
+        {
+          fieldName: "t3",
+          format: {
+            dateFormat: "short-date-short-time",
+          },
+          label: "50% to end",
+        },
+        {
+          fieldName: "t4",
+          format: {
+            dateFormat: "short-date-short-time",
+          },
+          label: "End time",
+        },
+      ],
+    }),
+  ];
+
   centerLayer.popupTemplate = centerLayer.createPopupTemplate();
   cloudCoverLayer.popupTemplate = cloudCoverLayer.createPopupTemplate();
   durationLayer.popupTemplate = durationLayer.createPopupTemplate();
@@ -251,6 +294,31 @@ async function createCityTimesLayer(): Promise<GeoJSONLayer> {
   };
 
   response.data.forEach((city: CityTimes) => {
+    const t0Hour = Number(city.ECLIPSE[0].split(":")[0]);
+    const t0Minute = Number(city.ECLIPSE[0].split(":")[1]);
+    const t0Second = Number(city.ECLIPSE[0].split(":")[2]);
+    const t0 = new Date(Date.UTC(2024, 3, 8, t0Hour, t0Minute, t0Second)).getTime();
+
+    const t1Hour = Number(city.ECLIPSE[1].split(":")[0]);
+    const t1Minute = Number(city.ECLIPSE[1].split(":")[1]);
+    const t1Second = Number(city.ECLIPSE[1].split(":")[2]);
+    const t1 = new Date(Date.UTC(2024, 3, 8, t1Hour, t1Minute, t1Second)).getTime();
+
+    const t2Hour = Number(city.ECLIPSE[2].split(":")[0]);
+    const t2Minute = Number(city.ECLIPSE[2].split(":")[1]);
+    const t2Second = Number(city.ECLIPSE[2].split(":")[2]);
+    const t2 = new Date(Date.UTC(2024, 3, 8, t2Hour, t2Minute, t2Second)).getTime();
+
+    const t3Hour = Number(city.ECLIPSE[3].split(":")[0]);
+    const t3Minute = Number(city.ECLIPSE[3].split(":")[1]);
+    const t3Second = Number(city.ECLIPSE[3].split(":")[2]);
+    const t3 = new Date(Date.UTC(2024, 3, 8, t3Hour, t3Minute, t3Second)).getTime();
+
+    const t4Hour = Number(city.ECLIPSE[4].split(":")[0]);
+    const t4Minute = Number(city.ECLIPSE[4].split(":")[1]);
+    const t4Second = Number(city.ECLIPSE[4].split(":")[2]);
+    const t4 = new Date(Date.UTC(2024, 3, 8, t4Hour, t4Minute, t4Second)).getTime();
+
     geoJSON.features.push({
       type: "Feature",
       geometry: {
@@ -260,11 +328,11 @@ async function createCityTimesLayer(): Promise<GeoJSONLayer> {
       properties: {
         name: city.NAME,
         state: city.STATE,
-        t0: city.ECLIPSE[0],
-        t1: city.ECLIPSE[1],
-        t2: city.ECLIPSE[2],
-        t3: city.ECLIPSE[3],
-        t4: city.ECLIPSE[4],
+        t0,
+        t1,
+        t2,
+        t3,
+        t4,
       },
     });
   });
@@ -329,18 +397,8 @@ async function queryInformation(cityTimesLayer: GeoJSONLayer, penumbraLayer: Geo
       const cityTimesQueryResult = await cityTimesLayer.queryFeatures(cityTimesQuery);
       cityTimesQueryResult.features.forEach((feature) => {
         const { t0, t4 } = feature.attributes;
-        const t0Array = t0.split(":");
-        const t0Hour = t0Array[0];
-        const t0Minute = t0Array[1];
-        const t0Second = t0Array[2];
-
-        const t4Array = t4.split(":");
-        const t4Hour = t4Array[0];
-        const t4Minute = t4Array[1];
-        const t4Second = t4Array[2];
-
-        startTimes.push(new Date(Date.UTC(2024, 4, 8, t0Hour, t0Minute, t0Second)).getTime());
-        endTimes.push(new Date(Date.UTC(2024, 4, 8, t4Hour, t4Minute, t4Second)).getTime());
+        startTimes.push(t0);
+        endTimes.push(t4);
       });
 
       const averageStartTime = new Date(startTimes.reduce((a, b) => a + b, 0) / startTimes.length);
