@@ -394,6 +394,8 @@ async function queryInformation(
     }
   } else {
     if (queryResultsPanel) {
+      queryResultsPanel.innerHTML = "";
+
       const cityTimesQuery = new Query({
         geometry: view.extent,
         outFields: ["t0", "t4"],
@@ -403,27 +405,32 @@ async function queryInformation(
       const endTimes: number[] = [];
 
       const cityTimesQueryResult = await cityTimesLayer.queryFeatures(cityTimesQuery);
-      cityTimesQueryResult.features.forEach((feature) => {
-        const { t0, t4 } = feature.attributes;
-        startTimes.push(t0);
-        endTimes.push(t4);
-      });
+      if (cityTimesQueryResult.features.length) {
+        cityTimesQueryResult.features.forEach((feature) => {
+          const { t0, t4 } = feature.attributes;
+          startTimes.push(t0);
+          endTimes.push(t4);
+        });
 
-      const averageStartTime = new Date(startTimes.reduce((a, b) => a + b, 0) / startTimes.length);
-      const averageEndTime = new Date(endTimes.reduce((a, b) => a + b, 0) / endTimes.length);
+        const averageStartTime = new Date(startTimes.reduce((a, b) => a + b, 0) / startTimes.length);
+        const averageEndTime = new Date(endTimes.reduce((a, b) => a + b, 0) / endTimes.length);
 
-      queryResultsPanel.innerHTML = "";
-      const averageStartTimeP = document.createElement("p");
-      averageStartTimeP.textContent = `Average Start Time: ${averageStartTime.toLocaleTimeString()} (${
-        Intl.DateTimeFormat().resolvedOptions().timeZone
-      })`;
-      queryResultsPanel.appendChild(averageStartTimeP);
+        const averageStartTimeP = document.createElement("p");
+        averageStartTimeP.textContent = `Average Start Time: ${averageStartTime.toLocaleTimeString()} (${
+          Intl.DateTimeFormat().resolvedOptions().timeZone
+        })`;
+        queryResultsPanel.appendChild(averageStartTimeP);
 
-      const averageEndTimeP = document.createElement("p");
-      averageEndTimeP.textContent = `Average End Time: ${averageEndTime.toLocaleTimeString()} (${
-        Intl.DateTimeFormat().resolvedOptions().timeZone
-      })`;
-      queryResultsPanel.appendChild(averageEndTimeP);
+        const averageEndTimeP = document.createElement("p");
+        averageEndTimeP.textContent = `Average End Time: ${averageEndTime.toLocaleTimeString()} (${
+          Intl.DateTimeFormat().resolvedOptions().timeZone
+        })`;
+        queryResultsPanel.appendChild(averageEndTimeP);
+      } else {
+        const noResults = document.createElement("p");
+        noResults.textContent = "No eclipse times found in the current view try zooming out or panning the map.";
+        queryResultsPanel.appendChild(noResults);
+      }
 
       const penumbraQuery = new Query({
         geometry: view.center,
