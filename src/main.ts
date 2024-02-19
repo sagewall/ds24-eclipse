@@ -1,17 +1,21 @@
 import Color from "@arcgis/core/Color";
 import Map from "@arcgis/core/Map";
+import CSVLayer from "@arcgis/core/layers/CSVLayer";
 import GeoJSONLayer from "@arcgis/core/layers/GeoJSONLayer";
+import LabelClass from "@arcgis/core/layers/support/LabelClass";
+import ClassBreaksRenderer from "@arcgis/core/renderers/ClassBreaksRenderer";
 import SimpleRenderer from "@arcgis/core/renderers/SimpleRenderer";
 import OpacityVariable from "@arcgis/core/renderers/visualVariables/OpacityVariable";
 import SimpleFillSymbol from "@arcgis/core/symbols/SimpleFillSymbol";
 import SimpleLineSymbol from "@arcgis/core/symbols/SimpleLineSymbol";
+import SimpleMarkerSymbol from "@arcgis/core/symbols/SimpleMarkerSymbol";
+import TextSymbol from "@arcgis/core/symbols/TextSymbol";
 import MapView from "@arcgis/core/views/MapView";
 import Expand from "@arcgis/core/widgets/Expand";
 import LayerList from "@arcgis/core/widgets/LayerList";
 import { defineCustomElements } from "@esri/calcite-components/dist/loader";
 import "./style.css";
-import CSVLayer from "@arcgis/core/layers/CSVLayer";
-import SimpleMarkerSymbol from "@arcgis/core/symbols/SimpleMarkerSymbol";
+import { cloudSymbol, sunSymbol } from "./symbols";
 
 defineCustomElements(window, {
   resourcesUrl: "https://js.arcgis.com/calcite-components/2.4.0/assets",
@@ -111,9 +115,47 @@ const totalityLayer = new GeoJSONLayer({
   url: "./data/totality.geojson",
 });
 
+// Create a lable class for the cloud cover layer
+const cloudCoverLabelClass = new LabelClass({
+  symbol: new TextSymbol({
+    color: "white",
+    font: {
+      size: 12,
+      weight: "bold",
+    },
+    haloColor: "black",
+    haloSize: 1,
+    xoffset: 10,
+    yoffset: 10,
+  }),
+  labelPlacement: "center-left",
+  labelExpressionInfo: {
+    expression: "Text(Round(($feature.APRIL_CLEAR_DAYS / 30)*100, 0)) + '%'",
+  },
+  minScale: 5000000,
+});
+
 // Create a CSVLayer for april cloud cover in various cities
 const cloudCoverLayer = new CSVLayer({
-  title: "April Cloud Cover",
+  labelingInfo: [cloudCoverLabelClass],
+  opacity: 0.8,
+  renderer: new ClassBreaksRenderer({
+    classBreakInfos: [
+      {
+        minValue: 0,
+        maxValue: 14,
+        symbol: cloudSymbol,
+      },
+      {
+        minValue: 15,
+        maxValue: 30,
+        symbol: sunSymbol,
+      },
+    ],
+    defaultSymbol: sunSymbol,
+    field: "APRIL_CLEAR_DAYS",
+  }),
+  title: "Chance of Sunny Skies in April",
   url: "./data/cloud-cover.csv",
 });
 
@@ -127,7 +169,7 @@ const festivalsLayer = new CSVLayer({
 });
 
 const map = new Map({
-  layers: [penumbraLayer, totalityLayer, durationLayer, cloudCoverLayer, festivalsLayer, centerLayer],
+  layers: [penumbraLayer, totalityLayer, durationLayer, festivalsLayer, centerLayer, cloudCoverLayer],
   basemap: "streets-vector",
 });
 
