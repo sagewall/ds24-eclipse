@@ -19,6 +19,7 @@ import type { GeoJSON } from "geojson";
 import "./style.css";
 import { cloudSymbol, sunSymbol } from "./symbols";
 import type { CityTimes } from "./types";
+import WebStyleSymbol from "@arcgis/core/symbols/WebStyleSymbol.js";
 
 defineCustomElements(window, {
   resourcesUrl: "https://js.arcgis.com/calcite-components/2.4.0/assets",
@@ -26,7 +27,7 @@ defineCustomElements(window, {
 setUp();
 
 const map = new Map({
-  basemap: "streets-vector",
+  basemap: "topo-vector",
 });
 
 const view = new MapView({
@@ -187,25 +188,30 @@ view.when(async () => {
     }),
     title: "Chance of Sunny Skies in April",
     url: "./data/cloud-cover.csv",
+    visible: false,
   });
 
   // Create a CSVLayer for festivals
   const festivalsLayer = new CSVLayer({
     renderer: new SimpleRenderer({
-      symbol: new SimpleMarkerSymbol({}),
+      symbol: new WebStyleSymbol({
+        name: "amusement-park",
+        styleName: "Esri2DPointSymbolsStyle",
+      }),
     }),
     title: "Festivals",
     url: "./data/festivals.csv",
+    visible: false,
   });
 
   map.addMany([
-    cityTimesLayer,
-    cloudCoverLayer,
-    centerLayer,
-    durationLayer,
-    festivalsLayer,
     penumbraLayer,
+    durationLayer,
     totalityLayer,
+    centerLayer,
+    cloudCoverLayer,
+    festivalsLayer,
+    cityTimesLayer,
   ]);
 
   await cityTimesLayer.load();
@@ -261,6 +267,26 @@ async function createCityTimesLayer(): Promise<GeoJSONLayer> {
   const url = URL.createObjectURL(blob);
 
   const cityTimes = new GeoJSONLayer({
+    minScale: 1000000,
+    renderer: new SimpleRenderer({
+      symbol: new SimpleMarkerSymbol({
+        color: new Color({
+          r: 200,
+          g: 200,
+          b: 200,
+        }),
+        outline: {
+          color: new Color({
+            r: 100,
+            g: 100,
+            b: 100,
+          }),
+          width: 1,
+        },
+        size: 6,
+      }),
+    }),
+    title: "City Eclipse Times",
     url,
   });
 
