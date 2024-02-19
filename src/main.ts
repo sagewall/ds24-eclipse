@@ -11,15 +11,14 @@ import SimpleFillSymbol from "@arcgis/core/symbols/SimpleFillSymbol";
 import SimpleLineSymbol from "@arcgis/core/symbols/SimpleLineSymbol";
 import SimpleMarkerSymbol from "@arcgis/core/symbols/SimpleMarkerSymbol";
 import TextSymbol from "@arcgis/core/symbols/TextSymbol";
+import WebStyleSymbol from "@arcgis/core/symbols/WebStyleSymbol.js";
 import MapView from "@arcgis/core/views/MapView";
-import Expand from "@arcgis/core/widgets/Expand";
 import LayerList from "@arcgis/core/widgets/LayerList";
 import { defineCustomElements } from "@esri/calcite-components/dist/loader";
 import type { GeoJSON } from "geojson";
 import "./style.css";
 import { cloudSymbol, sunSymbol } from "./symbols";
 import type { CityTimes } from "./types";
-import WebStyleSymbol from "@arcgis/core/symbols/WebStyleSymbol.js";
 
 defineCustomElements(window, {
   resourcesUrl: "https://js.arcgis.com/calcite-components/2.4.0/assets",
