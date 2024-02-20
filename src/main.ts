@@ -26,6 +26,21 @@ import type { CityTimes } from "./types";
 defineCustomElements(window, {
   resourcesUrl: "https://js.arcgis.com/calcite-components/2.4.0/assets",
 });
+
+const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+const durationListItem = document.querySelector("#duration-list-item") as HTMLCalciteListItemElement;
+const durationChip = document.querySelector("#duration-chip") as HTMLCalciteChipElement;
+const endTimeListItem = document.querySelector("#end-time-list-item") as HTMLCalciteListItemElement;
+const endTimeChip = document.querySelector("#end-time-chip") as HTMLCalciteChipElement;
+const obscurationListItem = document.querySelector("#obscuration-list-item") as HTMLCalciteListItemElement;
+const obscurationChip = document.querySelector("#obscuration-chip") as HTMLCalciteChipElement;
+const queryResultsPanel = document.querySelector("#query-results-panel") as HTMLCalcitePanelElement;
+const startTimeListItem = document.querySelector("#start-time-list-item") as HTMLCalciteListItemElement;
+const startTimeChip = document.querySelector("#start-time-chip") as HTMLCalciteChipElement;
+
+queryResultsPanel.description = `${timeZone} timezone`;
+
 setUp();
 
 const map = new Map({
@@ -384,82 +399,110 @@ async function queryInformation(
   durationlayer: GeoJSONLayer,
 ) {
   const { scale } = view;
-  const result = document.createElement("p");
-  const queryResultsPanel = document.querySelector("#query-results-panel");
-  if (scale > 1000000) {
-    if (queryResultsPanel) {
-      queryResultsPanel.innerHTML = "";
-      result.textContent = "Zoom in to see more information";
-      queryResultsPanel.appendChild(result);
+  if (scale < 1000000) {
+    const cityTimesQuery = new Query({
+      geometry: view.extent,
+      outFields: ["t0", "t4"],
+    });
+
+    const startTimes: number[] = [];
+    const endTimes: number[] = [];
+
+    const cityTimesQueryResult = await cityTimesLayer.queryFeatures(cityTimesQuery);
+    if (cityTimesQueryResult.features.length) {
+      cityTimesQueryResult.features.forEach((feature) => {
+        const { t0, t4 } = feature.attributes;
+        startTimes.push(t0);
+        endTimes.push(t4);
+      });
+
+      const averageStartTime = new Date(startTimes.reduce((a, b) => a + b, 0) / startTimes.length);
+      const averageEndTime = new Date(endTimes.reduce((a, b) => a + b, 0) / endTimes.length);
+
+      const startTimeValue = averageStartTime.toLocaleTimeString();
+      startTimeListItem.description = "";
+      startTimeChip.innerHTML = startTimeValue;
+      startTimeChip.hidden = false;
+      startTimeChip.value = startTimeValue;
+
+      const endTimeValue = averageEndTime.toLocaleTimeString();
+      endTimeListItem.description = "";
+      endTimeChip.innerHTML = endTimeValue;
+      endTimeChip.hidden = false;
+      endTimeChip.value = endTimeValue;
+    } else {
+      startTimeListItem.description = "No eclipse times found in the current view try zooming or panning the map.";
+      startTimeChip.hidden = true;
+      startTimeChip.innerHTML = "";
+      startTimeChip.value = "unknown";
+
+      endTimeListItem.description = "No eclipse times found in the current view try zooming or panning the map.";
+      endTimeChip.hidden = true;
+      endTimeChip.innerHTML = "";
+      endTimeChip.value = "unknown";
+    }
+
+    const penumbraQuery = new Query({
+      geometry: view.center,
+      outFields: ["Obscuration"],
+    });
+
+    const penumbraQueryResult = await penumbraLayer.queryFeatures(penumbraQuery);
+
+    if (penumbraQueryResult.features.length) {
+      const obscurationValue = `${Math.round(penumbraQueryResult.features[0].attributes.Obscuration * 100)}%`;
+      obscurationListItem.description = "";
+      obscurationChip.hidden = false;
+      obscurationChip.innerHTML = obscurationValue;
+      obscurationChip.value = obscurationValue;
+    } else {
+      obscurationListItem.description = "No obscuration found in the current view try zooming or panning the map.";
+      obscurationChip.hidden = true;
+      obscurationChip.innerHTML = "";
+      obscurationChip.value = "unknown";
+    }
+
+    const durationQuery = new Query({
+      geometry: view.center,
+      outFields: ["Duration"],
+    });
+
+    const durationQueryResult = await durationlayer.queryFeatures(durationQuery);
+
+    if (durationQueryResult.features.length) {
+      const durationValue = `${Math.round(durationQueryResult.features[0].attributes.Duration)} seconds`;
+      durationListItem.description = "";
+      durationChip.hidden = false;
+      durationChip.innerHTML = durationValue;
+      durationChip.value = durationValue;
+    } else {
+      durationListItem.description =
+        "No total eclipse duration found in the current view try zooming or panning the map.";
+      durationChip.hidden = true;
+      durationChip.innerHTML = "";
+      durationChip.value = "unknown";
     }
   } else {
-    if (queryResultsPanel) {
-      queryResultsPanel.innerHTML = "";
+    startTimeListItem.description = "No eclipse times found in the current view try zooming or panning the map.";
+    startTimeChip.hidden = true;
+    startTimeChip.innerHTML = "";
+    startTimeChip.value = "unknown";
 
-      const cityTimesQuery = new Query({
-        geometry: view.extent,
-        outFields: ["t0", "t4"],
-      });
+    endTimeListItem.description = "No eclipse times found in the current view try zooming or panning the map.";
+    endTimeChip.hidden = true;
+    endTimeChip.innerHTML = "";
+    endTimeChip.value = "unknown";
 
-      const startTimes: number[] = [];
-      const endTimes: number[] = [];
+    obscurationListItem.description = "No obscuration found in the current view try zooming or panning the map.";
+    obscurationChip.hidden = true;
+    obscurationChip.innerHTML = "";
+    obscurationChip.value = "unknown";
 
-      const cityTimesQueryResult = await cityTimesLayer.queryFeatures(cityTimesQuery);
-      if (cityTimesQueryResult.features.length) {
-        cityTimesQueryResult.features.forEach((feature) => {
-          const { t0, t4 } = feature.attributes;
-          startTimes.push(t0);
-          endTimes.push(t4);
-        });
-
-        const averageStartTime = new Date(startTimes.reduce((a, b) => a + b, 0) / startTimes.length);
-        const averageEndTime = new Date(endTimes.reduce((a, b) => a + b, 0) / endTimes.length);
-
-        const averageStartTimeP = document.createElement("p");
-        averageStartTimeP.textContent = `Average Start Time: ${averageStartTime.toLocaleTimeString()} (${
-          Intl.DateTimeFormat().resolvedOptions().timeZone
-        })`;
-        queryResultsPanel.appendChild(averageStartTimeP);
-
-        const averageEndTimeP = document.createElement("p");
-        averageEndTimeP.textContent = `Average End Time: ${averageEndTime.toLocaleTimeString()} (${
-          Intl.DateTimeFormat().resolvedOptions().timeZone
-        })`;
-        queryResultsPanel.appendChild(averageEndTimeP);
-      } else {
-        const noResults = document.createElement("p");
-        noResults.textContent = "No eclipse times found in the current view try zooming out or panning the map.";
-        queryResultsPanel.appendChild(noResults);
-      }
-
-      const penumbraQuery = new Query({
-        geometry: view.center,
-        outFields: ["Obscuration"],
-      });
-
-      const penumbraQueryResult = await penumbraLayer.queryFeatures(penumbraQuery);
-
-      const averageObscurationP = document.createElement("p");
-      averageObscurationP.textContent = `Obscuration at the center of the map: ${Math.round(
-        penumbraQueryResult.features[0].attributes.Obscuration * 100,
-      )}%`;
-      queryResultsPanel.appendChild(averageObscurationP);
-
-      const durationQuery = new Query({
-        geometry: view.center,
-        outFields: ["Duration"],
-      });
-
-      const durationQueryResult = await durationlayer.queryFeatures(durationQuery);
-
-      if (durationQueryResult.features.length) {
-        const averageDurationP = document.createElement("p");
-        averageDurationP.textContent = `Approximate duration of the total eclipse at the center of the map: ${Math.round(
-          durationQueryResult.features[0].attributes.Duration,
-        )} seconds`;
-        queryResultsPanel.appendChild(averageDurationP);
-      }
-    }
+    durationListItem.description =
+      "No total eclipse duration found in the current view try zooming or panning the map.";
+    durationChip.hidden = true;
+    durationChip.innerHTML = "";
+    durationChip.value = "unknown";
   }
 }
 

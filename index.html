@@ -28,7 +28,35 @@
 
       <calcite-shell-panel slot="panel-end" display-mode="float">
         <calcite-panel id="layer-list-panel"> </calcite-panel>
-        <calcite-panel id="query-results-panel">Zoom in to see more information</calcite-panel>
+        <calcite-panel id="query-results-panel" heading="Eclipse data">
+          <calcite-list>
+            <calcite-list-item
+              id="start-time-list-item"
+              label="Start time"
+              description="No eclipse times found in the current view try zooming or panning the map."
+              ><calcite-chip id="start-time-chip" value="unknown" hidden></calcite-chip
+            ></calcite-list-item>
+            <calcite-list-item
+              id="end-time-list-item"
+              label="End time"
+              description="No eclipse times found in the current view try zooming or panning the map."
+            >
+              <calcite-chip id="end-time-chip" value="unknown" hidden></calcite-chip
+            ></calcite-list-item>
+            <calcite-list-item
+              id="obscuration-list-item"
+              label="Obscuration"
+              description="No obscuration found in the current view try zooming or panning the map."
+              ><calcite-chip id="obscuration-chip" value="unknown" hidden></calcite-chip
+            ></calcite-list-item>
+            <calcite-list-item
+              id="duration-list-item"
+              label="Duration of totality"
+              description="No total eclipse duration found in the current view try zooming or panning the map."
+              ><calcite-chip id="duration-chip" value="unknown" hidden></calcite-chip
+            ></calcite-list-item>
+          </calcite-list>
+        </calcite-panel>
       </calcite-shell-panel>
 
       <div id="viewDiv"></div>
