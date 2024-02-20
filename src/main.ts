@@ -27,21 +27,21 @@ defineCustomElements(window, {
   resourcesUrl: "https://js.arcgis.com/calcite-components/2.4.0/assets",
 });
 
-const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
-const durationListItem = document.querySelector("#duration-list-item") as HTMLCalciteListItemElement;
 const durationChip = document.querySelector("#duration-chip") as HTMLCalciteChipElement;
-const endTimeListItem = document.querySelector("#end-time-list-item") as HTMLCalciteListItemElement;
+const durationLabel = document.querySelector("#duration-label") as HTMLCalciteLabelElement;
 const endTimeChip = document.querySelector("#end-time-chip") as HTMLCalciteChipElement;
-const obscurationListItem = document.querySelector("#obscuration-list-item") as HTMLCalciteListItemElement;
+const endTimeLabel = document.querySelector("#end-time-label") as HTMLCalciteLabelElement;
+const noResultsNotice = document.querySelector("#no-results-notice") as HTMLCalciteNoticeElement;
 const obscurationChip = document.querySelector("#obscuration-chip") as HTMLCalciteChipElement;
+const obscurationLabel = document.querySelector("#obscuration-label") as HTMLCalciteLabelElement;
 const queryResultsPanel = document.querySelector("#query-results-panel") as HTMLCalcitePanelElement;
-const startTimeListItem = document.querySelector("#start-time-list-item") as HTMLCalciteListItemElement;
 const startTimeChip = document.querySelector("#start-time-chip") as HTMLCalciteChipElement;
-
-queryResultsPanel.description = `${timeZone} timezone`;
+const startTimeLabel = document.querySelector("#start-time-label") as HTMLCalciteLabelElement;
 
 setUp();
+
+const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+queryResultsPanel.description = `${timeZone} timezone`;
 
 const map = new Map({
   basemap: "topo-vector",
@@ -400,6 +400,8 @@ async function queryInformation(
 ) {
   const { scale } = view;
   if (scale < 1000000) {
+    noResultsNotice.hidden = true;
+
     const cityTimesQuery = new Query({
       geometry: view.extent,
       outFields: ["t0", "t4"],
@@ -420,23 +422,23 @@ async function queryInformation(
       const averageEndTime = new Date(endTimes.reduce((a, b) => a + b, 0) / endTimes.length);
 
       const startTimeValue = averageStartTime.toLocaleTimeString();
-      startTimeListItem.description = "";
-      startTimeChip.innerHTML = startTimeValue;
+      startTimeLabel.hidden = false;
       startTimeChip.hidden = false;
+      startTimeChip.innerHTML = startTimeValue;
       startTimeChip.value = startTimeValue;
 
       const endTimeValue = averageEndTime.toLocaleTimeString();
-      endTimeListItem.description = "";
+      endTimeLabel.hidden = false;
       endTimeChip.innerHTML = endTimeValue;
       endTimeChip.hidden = false;
       endTimeChip.value = endTimeValue;
     } else {
-      startTimeListItem.description = "No eclipse times found in the current view try zooming or panning the map.";
+      startTimeLabel.hidden = true;
       startTimeChip.hidden = true;
       startTimeChip.innerHTML = "";
       startTimeChip.value = "unknown";
 
-      endTimeListItem.description = "No eclipse times found in the current view try zooming or panning the map.";
+      endTimeLabel.hidden = true;
       endTimeChip.hidden = true;
       endTimeChip.innerHTML = "";
       endTimeChip.value = "unknown";
@@ -451,12 +453,12 @@ async function queryInformation(
 
     if (penumbraQueryResult.features.length) {
       const obscurationValue = `${Math.round(penumbraQueryResult.features[0].attributes.Obscuration * 100)}%`;
-      obscurationListItem.description = "";
+      obscurationLabel.hidden = false;
       obscurationChip.hidden = false;
       obscurationChip.innerHTML = obscurationValue;
       obscurationChip.value = obscurationValue;
     } else {
-      obscurationListItem.description = "No obscuration found in the current view try zooming or panning the map.";
+      obscurationLabel.hidden = true;
       obscurationChip.hidden = true;
       obscurationChip.innerHTML = "";
       obscurationChip.value = "unknown";
@@ -471,35 +473,34 @@ async function queryInformation(
 
     if (durationQueryResult.features.length) {
       const durationValue = `${Math.round(durationQueryResult.features[0].attributes.Duration)} seconds`;
-      durationListItem.description = "";
+      durationLabel.hidden = false;
       durationChip.hidden = false;
       durationChip.innerHTML = durationValue;
       durationChip.value = durationValue;
     } else {
-      durationListItem.description =
-        "No total eclipse duration found in the current view try zooming or panning the map.";
+      durationLabel.hidden = true;
       durationChip.hidden = true;
       durationChip.innerHTML = "";
       durationChip.value = "unknown";
     }
   } else {
-    startTimeListItem.description = "No eclipse times found in the current view try zooming or panning the map.";
+    noResultsNotice.hidden = false;
+    startTimeLabel.hidden = true;
     startTimeChip.hidden = true;
     startTimeChip.innerHTML = "";
     startTimeChip.value = "unknown";
 
-    endTimeListItem.description = "No eclipse times found in the current view try zooming or panning the map.";
+    endTimeLabel.hidden = true;
     endTimeChip.hidden = true;
     endTimeChip.innerHTML = "";
     endTimeChip.value = "unknown";
 
-    obscurationListItem.description = "No obscuration found in the current view try zooming or panning the map.";
+    obscurationLabel.hidden = true;
     obscurationChip.hidden = true;
     obscurationChip.innerHTML = "";
     obscurationChip.value = "unknown";
 
-    durationListItem.description =
-      "No total eclipse duration found in the current view try zooming or panning the map.";
+    durationLabel.hidden = true;
     durationChip.hidden = true;
     durationChip.innerHTML = "";
     durationChip.value = "unknown";

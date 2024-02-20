@@ -11,3 +11,7 @@
 calcite-chip {
   margin: 10px;
 }
+
+calcite-chip {
+  min-width: 120px;
+}
