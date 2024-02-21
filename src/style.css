@@ -1,17 +1,46 @@
 @import "@esri/calcite-components/dist/calcite/calcite.css";
 @import "@arcgis/core/assets/esri/themes/light/main.css";
 
+html,
+body,
 #viewDiv {
+  padding: 0;
+  margin: 0;
   height: 100%;
   width: 100%;
-  margin: 0;
-  padding: 0;
 }
 
 calcite-chip {
   margin: 10px;
+  min-width: 120px;
 }
 
-calcite-chip {
-  min-width: 120px;
+calcite-menu-item {
+  --calcite-color-foreground-1: var(--calcite-color-background);
+}
+
+calcite-navigation-logo {
+  --calcite-ui-icon-color: var(--calcite-color-brand);
+}
+
+calcite-shell-panel[slot="panel-start"] calcite-panel {
+  border-top: 0;
+}
+
+calcite-action-pad {
+  margin-inline-end: 0.5rem;
+}
+
+#modal hr {
+  margin: 1rem 0;
+  border: 0;
+  border-bottom: 1px solid var(--calcite-color-border-3);
+}
+
+#modal ul li {
+  margin-bottom: 0.5rem;
+}
+
+#modal calcite-notice {
+  margin-bottom: 1.25rem;
 }
