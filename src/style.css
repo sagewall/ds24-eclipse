@@ -10,11 +10,6 @@ body,
   width: 100%;
 }
 
-calcite-chip {
-  margin: 10px;
-  min-width: 120px;
-}
-
 calcite-menu-item {
   --calcite-color-foreground-1: var(--calcite-color-background);
 }

@@ -31,15 +31,15 @@ defineCustomElements(window, {
 
 // References to the user interface elements
 const durationChip = document.querySelector("#duration-chip") as HTMLCalciteChipElement;
-const durationLabel = document.querySelector("#duration-label") as HTMLCalciteLabelElement;
+const durationListItem = document.querySelector("#duration-list-item") as HTMLCalciteListItemElement;
 const endTimeChip = document.querySelector("#end-time-chip") as HTMLCalciteChipElement;
-const endTimeLabel = document.querySelector("#end-time-label") as HTMLCalciteLabelElement;
+const endTimeListItem = document.querySelector("#end-time-list-item") as HTMLCalciteListItemElement;
 const noResultsNotice = document.querySelector("#no-results-notice") as HTMLCalciteNoticeElement;
 const obscurationChip = document.querySelector("#obscuration-chip") as HTMLCalciteChipElement;
-const obscurationLabel = document.querySelector("#obscuration-label") as HTMLCalciteLabelElement;
+const obscurationListItem = document.querySelector("#obscuration-list-item") as HTMLCalciteListItemElement;
 const queryResultsBlock = document.querySelector("#query-results-block") as HTMLCalciteBlockElement;
 const startTimeChip = document.querySelector("#start-time-chip") as HTMLCalciteChipElement;
-const startTimeLabel = document.querySelector("#start-time-label") as HTMLCalciteLabelElement;
+const startTimeListItem = document.querySelector("#start-time-list-item") as HTMLCalciteListItemElement;
 
 // Set up the user interface
 setUp();
@@ -343,7 +343,7 @@ async function createCityTimesLayer(): Promise<GeoJSONLayer> {
   const url = URL.createObjectURL(blob);
 
   const cityTimes = new GeoJSONLayer({
-    minScale: 1000000,
+    minScale: 2311162, // zoom 8
     outFields: ["*"],
     renderer: new SimpleRenderer({
       symbol: new SimpleMarkerSymbol({
@@ -392,8 +392,8 @@ async function queryInformation(
   penumbraLayer: GeoJSONLayer,
   durationlayer: GeoJSONLayer,
 ) {
-  const { scale } = view;
-  if (scale < 1000000) {
+  const { zoom } = view;
+  if (zoom > 8) {
     noResultsNotice.hidden = true;
 
     const query = (layer: GeoJSONLayer, geometry: Geometry, outFields: string[]) =>
@@ -406,16 +406,16 @@ async function queryInformation(
     if (cityTimesQueryResult.features.length) {
       const startTimes = cityTimesQueryResult.features.map((feature) => feature.attributes.t0);
       const endTimes = cityTimesQueryResult.features.map((feature) => feature.attributes.t4);
-      updateQueryPanel(startTimeLabel, startTimeChip, averageTime(startTimes));
-      updateQueryPanel(endTimeLabel, endTimeChip, averageTime(endTimes));
+      updateQueryPanel(startTimeListItem, startTimeChip, averageTime(startTimes));
+      updateQueryPanel(endTimeListItem, endTimeChip, averageTime(endTimes));
     } else {
-      updateQueryPanel(startTimeLabel, startTimeChip, "unknown");
-      updateQueryPanel(endTimeLabel, endTimeChip, "unknown");
+      updateQueryPanel(startTimeListItem, startTimeChip, "unknown");
+      updateQueryPanel(endTimeListItem, endTimeChip, "unknown");
     }
 
     const penumbraQueryResult = await query(penumbraLayer, view.center, ["Obscuration"]);
     updateQueryPanel(
-      obscurationLabel,
+      obscurationListItem,
       obscurationChip,
       penumbraQueryResult.features.length
         ? `${Math.round(penumbraQueryResult.features[0].attributes.Obscuration * 100)}%`
@@ -424,7 +424,7 @@ async function queryInformation(
 
     const durationQueryResult = await query(durationlayer, view.center, ["Duration"]);
     updateQueryPanel(
-      durationLabel,
+      durationListItem,
       durationChip,
       durationQueryResult.features.length
         ? `${Math.round(durationQueryResult.features[0].attributes.Duration)} seconds`
@@ -432,10 +432,10 @@ async function queryInformation(
     );
   } else {
     noResultsNotice.hidden = false;
-    updateQueryPanel(startTimeLabel, startTimeChip, "unknown");
-    updateQueryPanel(endTimeLabel, endTimeChip, "unknown");
-    updateQueryPanel(obscurationLabel, obscurationChip, "unknown");
-    updateQueryPanel(durationLabel, durationChip, "unknown");
+    updateQueryPanel(startTimeListItem, startTimeChip, "unknown");
+    updateQueryPanel(endTimeListItem, endTimeChip, "unknown");
+    updateQueryPanel(obscurationListItem, obscurationChip, "unknown");
+    updateQueryPanel(durationListItem, durationChip, "unknown");
   }
 }
 
@@ -471,21 +471,21 @@ function setUp() {
 }
 
 /**
- * Update the chip and label with the given value
+ * Update list item with the given value
  *
- * @param label
+ * @param listItem
  * @param chip
  * @param value
  */
-function updateQueryPanel(label: HTMLCalciteLabelElement, chip: HTMLCalciteChipElement, value: string) {
+function updateQueryPanel(listItem: HTMLCalciteListItemElement, chip: HTMLCalciteChipElement, value: string) {
   if (value === "unknown") {
-    label.hidden = true;
+    listItem.closed = true;
     chip.hidden = true;
     chip.innerHTML = "";
     chip.value = value;
     return;
   }
-  label.hidden = false;
+  listItem.closed = false;
   chip.hidden = false;
   chip.innerHTML = value;
   chip.value = value;

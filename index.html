@@ -31,31 +31,45 @@
           <calcite-panel id="layer-list-panel"> </calcite-panel>
         </calcite-block>
         <calcite-block id="query-results-block" heading="Eclipse data" collapsible open>
-          <calcite-panel>
-            <calcite-notice id="no-results-notice" open
-              ><div slot="title">No results found</div>
-              <div slot="message">Try zooming or panning the map</div></calcite-notice
-            >
-            <calcite-label id="start-time-label" layout="inline" hidden>
-              <calcite-chip id="start-time-chip" value="unknown" kind="brand" hidden></calcite-chip>
-              Start time
-            </calcite-label>
+          <calcite-notice id="no-results-notice" open
+            ><div slot="title">No results found</div>
+            <div slot="message">Try zooming or panning the map</div></calcite-notice
+          >
 
-            <calcite-label id="end-time-label" layout="inline" hidden>
-              <calcite-chip id="end-time-chip" value="unknown" kind="brand" hidden></calcite-chip>
-              End time
-            </calcite-label>
+          <calcite-list>
+            <calcite-list-item id="start-time-list-item" label="Start time" value="unknown" closed>
+              <calcite-chip id="start-time-chip" slot="content-end" kind="brand" value="unknown"></calcite-chip>
+            </calcite-list-item>
+            <calcite-list-item id="end-time-list-item" label="End time" value="unknown" closed>
+              <calcite-chip id="end-time-chip" slot="content-end" kind="brand" value="unknown"></calcite-chip>
+            </calcite-list-item>
+            <calcite-list-item id="obscuration-list-item" label="Obscuration" value="unknown" closed>
+              <calcite-chip id="obscuration-chip" slot="content-end" kind="brand" value="unknown"></calcite-chip>
+            </calcite-list-item>
+            <calcite-list-item id="duration-list-item" label="Duration" value="unknown" closed>
+              <calcite-chip id="duration-chip" slot="content-end" kind="brand" value="unknown"></calcite-chip>
+            </calcite-list-item>
+          </calcite-list>
 
-            <calcite-label id="obscuration-label" layout="inline" hidden>
-              <calcite-chip id="obscuration-chip" value="unknown" kind="brand" hidden></calcite-chip>
-              Obscuration
-            </calcite-label>
+          <calcite-label id="start-time-label" layout="inline" hidden>
+            <calcite-chip id="start-time-chip" value="unknown" kind="brand" hidden></calcite-chip>
+            Start time
+          </calcite-label>
 
-            <calcite-label id="duration-label" layout="inline" hidden>
-              <calcite-chip id="duration-chip" value="unknown" kind="brand" hidden></calcite-chip>
-              Duration of totality
-            </calcite-label>
-          </calcite-panel>
+          <calcite-label id="end-time-label" layout="inline" hidden>
+            <calcite-chip id="end-time-chip" value="unknown" kind="brand" hidden></calcite-chip>
+            End time
+          </calcite-label>
+
+          <calcite-label id="obscuration-label" layout="inline" hidden>
+            <calcite-chip id="obscuration-chip" value="unknown" kind="brand" hidden></calcite-chip>
+            Obscuration
+          </calcite-label>
+
+          <calcite-label id="duration-label" layout="inline" hidden>
+            <calcite-chip id="duration-chip" value="unknown" kind="brand" hidden></calcite-chip>
+            Duration of totality
+          </calcite-label>
         </calcite-block>
       </calcite-shell-panel>
 
