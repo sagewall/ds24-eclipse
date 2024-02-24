@@ -23,10 +23,12 @@ import "./style.css";
 import { cloudSymbol, sunSymbol } from "./symbols";
 import type { CityTimes } from "./types";
 
+// Load the Calcite custom elements
 defineCustomElements(window, {
   resourcesUrl: "https://js.arcgis.com/calcite-components/2.4.0/assets",
 });
 
+// References to the user interface elements
 const durationChip = document.querySelector("#duration-chip") as HTMLCalciteChipElement;
 const durationLabel = document.querySelector("#duration-label") as HTMLCalciteLabelElement;
 const endTimeChip = document.querySelector("#end-time-chip") as HTMLCalciteChipElement;
@@ -38,15 +40,19 @@ const queryResultsPanel = document.querySelector("#query-results-panel") as HTML
 const startTimeChip = document.querySelector("#start-time-chip") as HTMLCalciteChipElement;
 const startTimeLabel = document.querySelector("#start-time-label") as HTMLCalciteLabelElement;
 
+// Set up the user interface
 setUp();
 
+// Set the user's timezone in the query results panel
 const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 queryResultsPanel.description = `${timeZone} timezone`;
 
+// Create a map
 const map = new Map({
   basemap: "topo-vector",
 });
 
+// Create a map view
 const view = new MapView({
   container: "viewDiv",
   map,
@@ -226,15 +232,16 @@ view.when(async () => {
     cityTimesLayer,
   ]);
 
-  await cityTimesLayer.load();
-  await centerLayer.load();
-  await cloudCoverLayer.load();
-  await durationLayer.load();
-  await festivalsLayer.load();
-  await penumbraLayer.load();
-  await totalityLayer.load();
+  // Wait for all layers to load
+  await Promise.all(map.allLayers.map((layer) => layer.load()));
 
-  cityTimesLayer.popupTemplate = cityTimesLayer.createPopupTemplate();
+  // Create popup templates for each layer
+  map.layers.forEach((layer) => {
+    if (layer instanceof GeoJSONLayer || layer instanceof CSVLayer) {
+      layer.popupTemplate = layer.createPopupTemplate();
+    }
+  });
+
   cityTimesLayer.popupTemplate.content = [
     new FieldsContent({
       fieldInfos: [
@@ -276,13 +283,6 @@ view.when(async () => {
       ],
     }),
   ];
-
-  centerLayer.popupTemplate = centerLayer.createPopupTemplate();
-  cloudCoverLayer.popupTemplate = cloudCoverLayer.createPopupTemplate();
-  durationLayer.popupTemplate = durationLayer.createPopupTemplate();
-  festivalsLayer.popupTemplate = festivalsLayer.createPopupTemplate();
-  penumbraLayer.popupTemplate = penumbraLayer.createPopupTemplate();
-  totalityLayer.popupTemplate = totalityLayer.createPopupTemplate();
 
   // Create a LayerList widget
   new LayerList({
