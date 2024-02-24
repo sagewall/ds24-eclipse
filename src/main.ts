@@ -37,7 +37,7 @@ const endTimeLabel = document.querySelector("#end-time-label") as HTMLCalciteLab
 const noResultsNotice = document.querySelector("#no-results-notice") as HTMLCalciteNoticeElement;
 const obscurationChip = document.querySelector("#obscuration-chip") as HTMLCalciteChipElement;
 const obscurationLabel = document.querySelector("#obscuration-label") as HTMLCalciteLabelElement;
-const queryResultsPanel = document.querySelector("#query-results-panel") as HTMLCalcitePanelElement;
+const queryResultsBlock = document.querySelector("#query-results-block") as HTMLCalciteBlockElement;
 const startTimeChip = document.querySelector("#start-time-chip") as HTMLCalciteChipElement;
 const startTimeLabel = document.querySelector("#start-time-label") as HTMLCalciteLabelElement;
 
@@ -46,7 +46,7 @@ setUp();
 
 // Set the user's timezone in the query results panel
 const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-queryResultsPanel.description = `${timeZone} timezone`;
+queryResultsBlock.description = `${timeZone} timezone`;
 
 // Create a map
 const map = new Map({
@@ -289,10 +289,6 @@ view.when(async () => {
   new LayerList({
     container: "layer-list-panel",
     view,
-    visibleElements: {
-      collapseButton: true,
-      heading: true,
-    },
     visibilityAppearance: "checkbox",
   });
 
