@@ -1,6 +1,7 @@
 import Color from "@arcgis/core/Color";
 import Map from "@arcgis/core/Map";
 import * as reactiveUtils from "@arcgis/core/core/reactiveUtils";
+import type Geometry from "@arcgis/core/geometry/Geometry";
 import CSVLayer from "@arcgis/core/layers/CSVLayer";
 import GeoJSONLayer from "@arcgis/core/layers/GeoJSONLayer";
 import LabelClass from "@arcgis/core/layers/support/LabelClass";
@@ -315,30 +316,11 @@ async function createCityTimesLayer(): Promise<GeoJSONLayer> {
   };
 
   response.data.forEach((city: CityTimes) => {
-    const t0Hour = Number(city.ECLIPSE[0].split(":")[0]);
-    const t0Minute = Number(city.ECLIPSE[0].split(":")[1]);
-    const t0Second = Number(city.ECLIPSE[0].split(":")[2]);
-    const t0 = new Date(Date.UTC(2024, 3, 8, t0Hour, t0Minute, t0Second)).getTime();
-
-    const t1Hour = Number(city.ECLIPSE[1].split(":")[0]);
-    const t1Minute = Number(city.ECLIPSE[1].split(":")[1]);
-    const t1Second = Number(city.ECLIPSE[1].split(":")[2]);
-    const t1 = new Date(Date.UTC(2024, 3, 8, t1Hour, t1Minute, t1Second)).getTime();
-
-    const t2Hour = Number(city.ECLIPSE[2].split(":")[0]);
-    const t2Minute = Number(city.ECLIPSE[2].split(":")[1]);
-    const t2Second = Number(city.ECLIPSE[2].split(":")[2]);
-    const t2 = new Date(Date.UTC(2024, 3, 8, t2Hour, t2Minute, t2Second)).getTime();
-
-    const t3Hour = Number(city.ECLIPSE[3].split(":")[0]);
-    const t3Minute = Number(city.ECLIPSE[3].split(":")[1]);
-    const t3Second = Number(city.ECLIPSE[3].split(":")[2]);
-    const t3 = new Date(Date.UTC(2024, 3, 8, t3Hour, t3Minute, t3Second)).getTime();
-
-    const t4Hour = Number(city.ECLIPSE[4].split(":")[0]);
-    const t4Minute = Number(city.ECLIPSE[4].split(":")[1]);
-    const t4Second = Number(city.ECLIPSE[4].split(":")[2]);
-    const t4 = new Date(Date.UTC(2024, 3, 8, t4Hour, t4Minute, t4Second)).getTime();
+    const t0 = parseTimeAndCreateDate(city.ECLIPSE[0]);
+    const t1 = parseTimeAndCreateDate(city.ECLIPSE[1]);
+    const t2 = parseTimeAndCreateDate(city.ECLIPSE[2]);
+    const t3 = parseTimeAndCreateDate(city.ECLIPSE[3]);
+    const t4 = parseTimeAndCreateDate(city.ECLIPSE[4]);
 
     geoJSON.features.push({
       type: "Feature",
@@ -392,7 +374,23 @@ async function createCityTimesLayer(): Promise<GeoJSONLayer> {
   return cityTimes;
 }
 
-// Query information about the map view
+/**
+ * Parse a time string and create a date object
+ *
+ * @param timeString
+ */
+function parseTimeAndCreateDate(timeString: string): number {
+  const [hour, minute, second] = timeString.split(":").map(Number);
+  return new Date(Date.UTC(2024, 3, 8, hour, minute, second)).getTime();
+}
+
+/**
+ * Query information about the layers at the center of the map view
+ *
+ * @param cityTimesLayer
+ * @param penumbraLayer
+ * @param durationlayer
+ */
 async function queryInformation(
   cityTimesLayer: GeoJSONLayer,
   penumbraLayer: GeoJSONLayer,
@@ -402,112 +400,52 @@ async function queryInformation(
   if (scale < 1000000) {
     noResultsNotice.hidden = true;
 
-    const cityTimesQuery = new Query({
-      geometry: view.extent,
-      outFields: ["t0", "t4"],
-    });
+    const query = (layer: GeoJSONLayer, geometry: Geometry, outFields: string[]) =>
+      layer.queryFeatures(new Query({ geometry, outFields }));
 
-    const startTimes: number[] = [];
-    const endTimes: number[] = [];
+    const averageTime = (times: number[]) =>
+      new Date(times.reduce((a, b) => a + b, 0) / times.length).toLocaleTimeString();
 
-    const cityTimesQueryResult = await cityTimesLayer.queryFeatures(cityTimesQuery);
+    const cityTimesQueryResult = await query(cityTimesLayer, view.extent, ["t0", "t4"]);
     if (cityTimesQueryResult.features.length) {
-      cityTimesQueryResult.features.forEach((feature) => {
-        const { t0, t4 } = feature.attributes;
-        startTimes.push(t0);
-        endTimes.push(t4);
-      });
-
-      const averageStartTime = new Date(startTimes.reduce((a, b) => a + b, 0) / startTimes.length);
-      const averageEndTime = new Date(endTimes.reduce((a, b) => a + b, 0) / endTimes.length);
-
-      const startTimeValue = averageStartTime.toLocaleTimeString();
-      startTimeLabel.hidden = false;
-      startTimeChip.hidden = false;
-      startTimeChip.innerHTML = startTimeValue;
-      startTimeChip.value = startTimeValue;
-
-      const endTimeValue = averageEndTime.toLocaleTimeString();
-      endTimeLabel.hidden = false;
-      endTimeChip.innerHTML = endTimeValue;
-      endTimeChip.hidden = false;
-      endTimeChip.value = endTimeValue;
+      const startTimes = cityTimesQueryResult.features.map((feature) => feature.attributes.t0);
+      const endTimes = cityTimesQueryResult.features.map((feature) => feature.attributes.t4);
+      updateQueryPanel(startTimeLabel, startTimeChip, averageTime(startTimes));
+      updateQueryPanel(endTimeLabel, endTimeChip, averageTime(endTimes));
     } else {
-      startTimeLabel.hidden = true;
-      startTimeChip.hidden = true;
-      startTimeChip.innerHTML = "";
-      startTimeChip.value = "unknown";
-
-      endTimeLabel.hidden = true;
-      endTimeChip.hidden = true;
-      endTimeChip.innerHTML = "";
-      endTimeChip.value = "unknown";
+      updateQueryPanel(startTimeLabel, startTimeChip, "unknown");
+      updateQueryPanel(endTimeLabel, endTimeChip, "unknown");
     }
 
-    const penumbraQuery = new Query({
-      geometry: view.center,
-      outFields: ["Obscuration"],
-    });
+    const penumbraQueryResult = await query(penumbraLayer, view.center, ["Obscuration"]);
+    updateQueryPanel(
+      obscurationLabel,
+      obscurationChip,
+      penumbraQueryResult.features.length
+        ? `${Math.round(penumbraQueryResult.features[0].attributes.Obscuration * 100)}%`
+        : "unknown",
+    );
 
-    const penumbraQueryResult = await penumbraLayer.queryFeatures(penumbraQuery);
-
-    if (penumbraQueryResult.features.length) {
-      const obscurationValue = `${Math.round(penumbraQueryResult.features[0].attributes.Obscuration * 100)}%`;
-      obscurationLabel.hidden = false;
-      obscurationChip.hidden = false;
-      obscurationChip.innerHTML = obscurationValue;
-      obscurationChip.value = obscurationValue;
-    } else {
-      obscurationLabel.hidden = true;
-      obscurationChip.hidden = true;
-      obscurationChip.innerHTML = "";
-      obscurationChip.value = "unknown";
-    }
-
-    const durationQuery = new Query({
-      geometry: view.center,
-      outFields: ["Duration"],
-    });
-
-    const durationQueryResult = await durationlayer.queryFeatures(durationQuery);
-
-    if (durationQueryResult.features.length) {
-      const durationValue = `${Math.round(durationQueryResult.features[0].attributes.Duration)} seconds`;
-      durationLabel.hidden = false;
-      durationChip.hidden = false;
-      durationChip.innerHTML = durationValue;
-      durationChip.value = durationValue;
-    } else {
-      durationLabel.hidden = true;
-      durationChip.hidden = true;
-      durationChip.innerHTML = "";
-      durationChip.value = "unknown";
-    }
+    const durationQueryResult = await query(durationlayer, view.center, ["Duration"]);
+    updateQueryPanel(
+      durationLabel,
+      durationChip,
+      durationQueryResult.features.length
+        ? `${Math.round(durationQueryResult.features[0].attributes.Duration)} seconds`
+        : "unknown",
+    );
   } else {
     noResultsNotice.hidden = false;
-    startTimeLabel.hidden = true;
-    startTimeChip.hidden = true;
-    startTimeChip.innerHTML = "";
-    startTimeChip.value = "unknown";
-
-    endTimeLabel.hidden = true;
-    endTimeChip.hidden = true;
-    endTimeChip.innerHTML = "";
-    endTimeChip.value = "unknown";
-
-    obscurationLabel.hidden = true;
-    obscurationChip.hidden = true;
-    obscurationChip.innerHTML = "";
-    obscurationChip.value = "unknown";
-
-    durationLabel.hidden = true;
-    durationChip.hidden = true;
-    durationChip.innerHTML = "";
-    durationChip.value = "unknown";
+    updateQueryPanel(startTimeLabel, startTimeChip, "unknown");
+    updateQueryPanel(endTimeLabel, endTimeChip, "unknown");
+    updateQueryPanel(obscurationLabel, obscurationChip, "unknown");
+    updateQueryPanel(durationLabel, durationChip, "unknown");
   }
 }
 
-// Set up the user interface
+/**
+ * Set up the user interface
+ */
 function setUp() {
   const toggleModalEl = document.getElementById("toggle-modal") as HTMLCalciteActionElement;
   const navigationEl = document.getElementById("nav") as HTMLCalciteNavigationElement;
@@ -534,4 +472,25 @@ function setUp() {
   function handlePanelClose() {
     sheetEl.open = false;
   }
+}
+
+/**
+ * Update the chip and label with the given value
+ *
+ * @param label
+ * @param chip
+ * @param value
+ */
+function updateQueryPanel(label: HTMLCalciteLabelElement, chip: HTMLCalciteChipElement, value: string) {
+  if (value === "unknown") {
+    label.hidden = true;
+    chip.hidden = true;
+    chip.innerHTML = "";
+    chip.value = value;
+    return;
+  }
+  label.hidden = false;
+  chip.hidden = false;
+  chip.innerHTML = value;
+  chip.value = value;
 }
