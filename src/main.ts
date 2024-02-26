@@ -48,6 +48,7 @@ setUp();
 const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 queryResultsBlock.description = `${timeZone} timezone`;
 
+// Step 1: Create a map and view
 // Create a map
 const map = new Map({
   basemap: "topo-vector",
@@ -64,6 +65,7 @@ const view = new MapView({
 // Create popup templates for each layer
 view.when(async () => {
   // Create a GeoJSON layers for the eclipse
+  // Step 2: Create center layer
   const centerLayer = new GeoJSONLayer({
     outFields: ["*"],
     renderer: new SimpleRenderer({
@@ -75,7 +77,9 @@ view.when(async () => {
     title: "Center",
     url: "./data/center.geojson",
   });
+  map.add(centerLayer);
 
+  // Step 3: Create additional GeoJSON layers for the duration, penumbra, and totality
   const durationLayer = new GeoJSONLayer({
     outFields: ["*"],
     renderer: new SimpleRenderer({
@@ -160,9 +164,14 @@ view.when(async () => {
     url: "./data/totality.geojson",
   });
 
-  // Create a GeoJSON layer for the cities and their eclipse times
-  const cityTimesLayer = await createCityTimesLayer();
+  map.addMany([penumbraLayer, durationLayer, totalityLayer]);
+  map.layers.reorder(centerLayer, map.layers.length - 1);
 
+  // Step 4 - Create a GeoJSON layer for the cities and their eclipse times
+  const cityTimesLayer = await createCityTimesLayer();
+  map.add(cityTimesLayer);
+
+  // Step 5 - Create the cloud cover layer
   // Create a lable class for the cloud cover layer
   const cloudCoverLabelClass = new LabelClass({
     symbol: new TextSymbol({
@@ -208,7 +217,9 @@ view.when(async () => {
     url: "./data/cloud-cover.csv",
     visible: false,
   });
+  map.add(cloudCoverLayer);
 
+  // Step 6 - Create a CSVLayer for festivals
   // Create a CSVLayer for festivals
   const festivalsLayer = new CSVLayer({
     outFields: ["*"],
@@ -222,17 +233,9 @@ view.when(async () => {
     url: "./data/festivals.csv",
     visible: false,
   });
+  map.add(festivalsLayer);
 
-  map.addMany([
-    penumbraLayer,
-    durationLayer,
-    totalityLayer,
-    centerLayer,
-    cloudCoverLayer,
-    festivalsLayer,
-    cityTimesLayer,
-  ]);
-
+  // Step 7 - Create popups
   // Wait for all layers to load
   await Promise.all(map.allLayers.map((layer) => layer.load()));
 
@@ -285,6 +288,7 @@ view.when(async () => {
     }),
   ];
 
+  // Step 8 - Create a LayerList widget
   // Create a LayerList widget
   new LayerList({
     container: "layer-list-panel",
@@ -292,6 +296,7 @@ view.when(async () => {
     visibilityAppearance: "checkbox",
   });
 
+  // Step 9 - Watch for when the view is stationary and query information
   // Watch for when the view is stationary and query information
   reactiveUtils.watch(
     () => view.stationary,
@@ -301,6 +306,11 @@ view.when(async () => {
   );
 });
 
+/**
+ * Create a GeoJSON layer for the cities and their eclipse times
+ *
+ * @returns Promise<GeoJSONLayer>
+ */
 async function createCityTimesLayer(): Promise<GeoJSONLayer> {
   const response = await esriRequest("./data/city-times.json", {
     responseType: "json",
@@ -342,7 +352,7 @@ async function createCityTimesLayer(): Promise<GeoJSONLayer> {
 
   const url = URL.createObjectURL(blob);
 
-  const cityTimes = new GeoJSONLayer({
+  const cityTimesGeoJSONLayer = new GeoJSONLayer({
     minScale: 2311162, // zoom 8
     outFields: ["*"],
     renderer: new SimpleRenderer({
@@ -367,7 +377,7 @@ async function createCityTimesLayer(): Promise<GeoJSONLayer> {
     url,
   });
 
-  return cityTimes;
+  return cityTimesGeoJSONLayer;
 }
 
 /**

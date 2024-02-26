@@ -31,7 +31,8 @@
       "  }),",
       "  title: \"Center\",",
       "  url: \"./data/center.geojson\",",
-      "});"
+      "});",
+      "map.add(centerLayer);"
     ],
     "description": "Snippet for creating a Center Layer"
   },
@@ -121,7 +122,10 @@
       "  }),",
       "  title: \"Totality\",",
       "  url: \"./data/totality.geojson\",",
-      "});"
+      "});",
+      "",
+      "map.addMany([durationLayer, penumbraLayer, totalityLayer]);",
+      "map.layers.reorder(centerLayer, map.layers.length - 1);"
     ],
     "description": "Snippet for creating GeoJSON layers"
   },
@@ -129,8 +133,8 @@
   "Create City Times Layer": {
     "prefix": "step-04-createCityTimesLayer",
     "body": [
-      "// Create a GeoJSON layer for the cities and their eclipse times",
-      "const cityTimesLayer = await createCityTimesLayer();"
+      "const cityTimesLayer = await createCityTimesLayer();",
+      map.add(cityTimesLayer);"
     ],
     "description": "Snippet for creating a CityTimes layer"
   },
@@ -182,7 +186,8 @@
       "  title: \"Chance of Sunny Skies in April\",",
       "  url: \"./data/cloud-cover.csv\",",
       "  visible: false,",
-      "});"
+      "});",
+      "map.add(cloudCoverLayer);"
     ],
     "description": "Snippet for creating a Cloud Cover Layer"
   },
