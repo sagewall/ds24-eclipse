@@ -124,7 +124,7 @@
       "  url: \"./data/totality.geojson\",",
       "});",
       "",
-      "map.addMany([durationLayer, penumbraLayer, totalityLayer]);",
+      "map.addMany([penumbraLayer, durationLayer, totalityLayer]);",
       "map.layers.reorder(centerLayer, map.layers.length - 1);"
     ],
     "description": "Snippet for creating GeoJSON layers"
@@ -132,10 +132,7 @@
 
   "Create City Times Layer": {
     "prefix": "step-04-createCityTimesLayer",
-    "body": [
-      "const cityTimesLayer = await createCityTimesLayer();",
-      map.add(cityTimesLayer);"
-    ],
+    "body": ["const cityTimesLayer = await createCityTimesLayer();", "map.add(cityTimesLayer);"],
     "description": "Snippet for creating a CityTimes layer"
   },
 
@@ -157,7 +154,7 @@
       "  }),",
       "  labelPlacement: \"center-left\",",
       "  labelExpressionInfo: {",
-      "    expression: \"Text(Round(($feature.APRIL_CLEAR_DAYS / 30)*100, 0)) + '%'\",",
+      "    expression: \"Text(Round((\\$feature.APRIL_CLEAR_DAYS / 30)*100, 0)) + '%'\",",
       "  },",
       "  minScale: 5000000,",
       "});",
@@ -208,6 +205,7 @@
       "  url: \"./data/festivals.csv\",",
       "  visible: false,",
       "});"
+      "map.add(festivalsLayer);"
     ],
     "description": "Snippet for creating a Festivals Layer"
   },
@@ -277,10 +275,6 @@
       "new LayerList({",
       "  container: \"layer-list-panel\",",
       "  view,",
-      "  visibleElements: {",
-      "    collapseButton: true,",
-      "    heading: true,",
-      "  },",
       "  visibilityAppearance: \"checkbox\",",
       "});"
     ],

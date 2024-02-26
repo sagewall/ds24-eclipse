@@ -62,7 +62,7 @@ const view = new MapView({
   center: [-85, 35],
 });
 
-// Create popup templates for each layer
+// When the view is ready
 view.when(async () => {
   // Create a GeoJSON layers for the eclipse
   // Step 2: Create center layer
@@ -172,7 +172,7 @@ view.when(async () => {
   map.add(cityTimesLayer);
 
   // Step 5 - Create the cloud cover layer
-  // Create a lable class for the cloud cover layer
+  // Create a label class for the cloud cover layer
   const cloudCoverLabelClass = new LabelClass({
     symbol: new TextSymbol({
       color: "white",
