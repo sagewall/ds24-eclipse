@@ -160,8 +160,9 @@ view.when(async () => {
         },
       }),
     }),
-    title: "Totality",
-    url: "./data/totality.geojson",
+    portalItem: {
+      id: "ce751a1140f741ae91fd5947ff2f28d9",
+    },
   });
 
   map.addMany([penumbraLayer, durationLayer, totalityLayer]);
@@ -214,7 +215,9 @@ view.when(async () => {
       field: "APRIL_CLEAR_DAYS",
     }),
     title: "Chance of Sunny Skies in April",
-    url: "./data/cloud-cover.csv",
+    portalItem: {
+      id: "c7bb3ecf141c420f8e6bf409f9d3390d",
+    },
     visible: false,
   });
   map.add(cloudCoverLayer);
