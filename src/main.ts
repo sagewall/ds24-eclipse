@@ -346,12 +346,15 @@ async function createCityTimesLayer(): Promise<GeoJSONLayer> {
     });
   });
 
+  // create a new blob from the GeoJSON feature collection
   const blob = new Blob([JSON.stringify(geoJSON)], {
     type: "application/json",
   });
 
+  // create a URL for the blob
   const url = URL.createObjectURL(blob);
 
+  // create a new GeoJSONLayer using the blob URL
   const cityTimesGeoJSONLayer = new GeoJSONLayer({
     minScale: 2311162, // zoom 8
     outFields: ["*"],
