@@ -199,6 +199,9 @@ view.when(async () => {
     labelingInfo: [cloudCoverLabelClass],
     opacity: 0.8,
     outFields: ["*"],
+    portalItem: {
+      id: "c7bb3ecf141c420f8e6bf409f9d3390d",
+    },
     renderer: new ClassBreaksRenderer({
       classBreakInfos: [
         {
@@ -216,9 +219,6 @@ view.when(async () => {
       field: "APRIL_CLEAR_DAYS",
     }),
     title: "Chance of Sunny Skies in April",
-    portalItem: {
-      id: "c7bb3ecf141c420f8e6bf409f9d3390d",
-    },
     visible: false,
   });
   map.add(cloudCoverLayer);
