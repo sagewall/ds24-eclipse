@@ -143,6 +143,9 @@ view.when(async () => {
   const totalityLayer = new GeoJSONLayer({
     blendMode: "multiply",
     outFields: ["*"],
+    portalItem: {
+      id: "ce751a1140f741ae91fd5947ff2f28d9",
+    },
     renderer: new SimpleRenderer({
       symbol: new SimpleFillSymbol({
         color: new Color({
@@ -160,9 +163,7 @@ view.when(async () => {
         },
       }),
     }),
-    portalItem: {
-      id: "ce751a1140f741ae91fd5947ff2f28d9",
-    },
+    title: "Totality",
   });
 
   map.addMany([penumbraLayer, durationLayer, totalityLayer]);
