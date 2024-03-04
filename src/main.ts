@@ -5,7 +5,6 @@ import type Geometry from "@arcgis/core/geometry/Geometry";
 import CSVLayer from "@arcgis/core/layers/CSVLayer";
 import GeoJSONLayer from "@arcgis/core/layers/GeoJSONLayer";
 import LabelClass from "@arcgis/core/layers/support/LabelClass";
-import FieldsContent from "@arcgis/core/popup/content/FieldsContent";
 import ClassBreaksRenderer from "@arcgis/core/renderers/ClassBreaksRenderer";
 import SimpleRenderer from "@arcgis/core/renderers/SimpleRenderer";
 import OpacityVariable from "@arcgis/core/renderers/visualVariables/OpacityVariable";
@@ -249,48 +248,6 @@ view.when(async () => {
       layer.popupTemplate = layer.createPopupTemplate();
     }
   });
-
-  cityTimesLayer.popupTemplate.content = [
-    new FieldsContent({
-      fieldInfos: [
-        {
-          fieldName: "t0",
-          format: {
-            dateFormat: "short-date-short-time",
-          },
-          label: "Start time",
-        },
-        {
-          fieldName: "t1",
-          format: {
-            dateFormat: "short-date-short-time",
-          },
-          label: "50% to maximum obscuration",
-        },
-        {
-          fieldName: "t2",
-          format: {
-            dateFormat: "short-date-short-time",
-          },
-          label: "Maximum obscuration",
-        },
-        {
-          fieldName: "t3",
-          format: {
-            dateFormat: "short-date-short-time",
-          },
-          label: "50% to end",
-        },
-        {
-          fieldName: "t4",
-          format: {
-            dateFormat: "short-date-short-time",
-          },
-          label: "End time",
-        },
-      ],
-    }),
-  ];
 
   // Step 8 - Create a LayerList widget
   // Create a LayerList widget
