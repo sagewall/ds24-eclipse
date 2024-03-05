@@ -1,6 +1,6 @@
 {
-  "Create Map and View": {
-    "prefix": "step-01-createMapAndView",
+  "ArcGIS Map Snippet": {
+    "prefix": "step-1-map-view-layerlist",
     "body": [
       "// Create a map",
       "const map = new Map({",
@@ -13,9 +13,16 @@
       "  map,",
       "  zoom: 4,",
       "  center: [-85, 35],",
+      "});",
+      "",
+      "// Add a layer list widget",
+      "new LayerList({",
+      "  container: \"layer-list-panel\",",
+      "  view,",
+      "  visibilityAppearance: \"checkbox\",",
       "});"
     ],
-    "description": "Snippet for creating a Map and MapView"
+    "description": "Creates a new ArcGIS map, map view, and layer list widget."
   },
 
   "Create Center Layer": {
@@ -127,17 +134,26 @@
       "});",
       "",
       "map.addMany([penumbraLayer, durationLayer, totalityLayer]);",
-      "map.layers.reorder(centerLayer, map.layers.length - 1);"
+      "map.layers.reorder(centerLayer, map.layers.length - 1);",
+      "",
+      "const cityTimesLayer = await createCityTimesLayer();",
+      "map.add(cityTimesLayer);"
     ],
     "description": "Snippet for creating GeoJSON layers"
   },
-
-  "Create City Times Layer": {
-    "prefix": "step-04-createCityTimesLayer",
-    "body": ["const cityTimesLayer = await createCityTimesLayer();", "map.add(cityTimesLayer);"],
-    "description": "Snippet for creating a CityTimes layer"
+  "Watch View and Query Information": {
+    "prefix": "step-04-watchViewAndQuery",
+    "body": [
+      "// Watch for when the view is stationary and query information",
+      "reactiveUtils.watch(",
+      "  () => view.stationary,",
+      "  (stationary) => {",
+      "    stationary && queryInformation(cityTimesLayer, penumbraLayer, durationLayer);",
+      "  },",
+      ");"
+    ],
+    "description": "Snippet for watching view's stationary property and querying information"
   },
-
   "Create Cloud Cover Layer": {
     "prefix": "step-05-createCloudCoverLayer",
     "body": [
@@ -225,77 +241,8 @@
       "  if (layer instanceof GeoJSONLayer || layer instanceof CSVLayer) {",
       "    layer.popupTemplate = layer.createPopupTemplate();",
       "  }",
-      "});",
-      "",
-      "cityTimesLayer.popupTemplate.content = [",
-      "  new FieldsContent({",
-      "    fieldInfos: [",
-      "      {",
-      "        fieldName: \"t0\",",
-      "        format: {",
-      "          dateFormat: \"short-date-short-time\",",
-      "        },",
-      "        label: \"Start time\",",
-      "      },",
-      "      {",
-      "        fieldName: \"t1\",",
-      "        format: {",
-      "          dateFormat: \"short-date-short-time\",",
-      "        },",
-      "        label: \"50% to maximum obscuration\",",
-      "      },",
-      "      {",
-      "        fieldName: \"t2\",",
-      "        format: {",
-      "          dateFormat: \"short-date-short-time\",",
-      "        },",
-      "        label: \"Maximum obscuration\",",
-      "      },",
-      "      {",
-      "        fieldName: \"t3\",",
-      "        format: {",
-      "          dateFormat: \"short-date-short-time\",",
-      "        },",
-      "        label: \"50% to end\",",
-      "      },",
-      "      {",
-      "        fieldName: \"t4\",",
-      "        format: {",
-      "          dateFormat: \"short-date-short-time\",",
-      "        },",
-      "        label: \"End time\",",
-      "      },",
-      "    ],",
-      "  }),",
-      "];"
-    ],
-    "description": "Snippet for loading layers and creating popup templates"
-  },
-
-  "Create LayerList Widget": {
-    "prefix": "step-08-createLayerList",
-    "body": [
-      "// Create a LayerList widget",
-      "new LayerList({",
-      "  container: \"layer-list-panel\",",
-      "  view,",
-      "  visibilityAppearance: \"checkbox\",",
       "});"
     ],
-    "description": "Snippet for creating a LayerList widget"
-  },
-
-  "Watch View and Query Information": {
-    "prefix": "step-09-watchViewAndQuery",
-    "body": [
-      "// Watch for when the view is stationary and query information",
-      "reactiveUtils.watch(",
-      "  () => view.stationary,",
-      "  (stationary) => {",
-      "    stationary && queryInformation(cityTimesLayer, penumbraLayer, durationLayer);",
-      "  },",
-      ");"
-    ],
-    "description": "Snippet for watching view's stationary property and querying information"
+    "description": "Snippet for loading layers and creating popup templates"
   }
 }

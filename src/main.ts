@@ -47,7 +47,7 @@ setUp();
 const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 queryResultsBlock.description = `${timeZone} timezone`;
 
-// Step 1: Create a map and view
+// Step 1 - Create a map and view
 // Create a map
 const map = new Map({
   basemap: "topo-vector",
@@ -61,10 +61,18 @@ const view = new MapView({
   center: [-85, 35],
 });
 
+// Add a layer list widget
+
+new LayerList({
+  container: "layer-list-panel",
+  view,
+  visibilityAppearance: "checkbox",
+});
+
 // When the view is ready
 view.when(async () => {
   // Create a GeoJSON layers for the eclipse
-  // Step 2: Create center layer
+  // Step 2 - Create center layer
   const centerLayer = new GeoJSONLayer({
     outFields: ["*"],
     renderer: new SimpleRenderer({
@@ -78,7 +86,7 @@ view.when(async () => {
   });
   map.add(centerLayer);
 
-  // Step 3: Create additional GeoJSON layers for the duration, penumbra, and totality
+  // Step 3 - Create additional GeoJSON layers for the duration, penumbra, and totality
   const durationLayer = new GeoJSONLayer({
     outFields: ["*"],
     renderer: new SimpleRenderer({
@@ -168,9 +176,17 @@ view.when(async () => {
   map.addMany([penumbraLayer, durationLayer, totalityLayer]);
   map.layers.reorder(centerLayer, map.layers.length - 1);
 
-  // Step 4 - Create a GeoJSON layer for the cities and their eclipse times
   const cityTimesLayer = await createCityTimesLayer();
   map.add(cityTimesLayer);
+
+  // Step 4 - Watch for when the view is stationary and query information
+  // Watch for when the view is stationary and query information
+  reactiveUtils.watch(
+    () => view.stationary,
+    (stationary) => {
+      stationary && queryInformation(cityTimesLayer, penumbraLayer, durationLayer);
+    },
+  );
 
   // Step 5 - Create the cloud cover layer
   // Create a label class for the cloud cover layer
@@ -248,23 +264,6 @@ view.when(async () => {
       layer.popupTemplate = layer.createPopupTemplate();
     }
   });
-
-  // Step 8 - Create a LayerList widget
-  // Create a LayerList widget
-  new LayerList({
-    container: "layer-list-panel",
-    view,
-    visibilityAppearance: "checkbox",
-  });
-
-  // Step 9 - Watch for when the view is stationary and query information
-  // Watch for when the view is stationary and query information
-  reactiveUtils.watch(
-    () => view.stationary,
-    (stationary) => {
-      stationary && queryInformation(cityTimesLayer, penumbraLayer, durationLayer);
-    },
-  );
 });
 
 /**
