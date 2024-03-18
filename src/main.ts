@@ -282,28 +282,32 @@ async function createCityTimesLayer(): Promise<GeoJSONLayer> {
   };
 
   response.data.forEach((city: CityTimes) => {
-    const t0 = parseTimeAndCreateDate(city.ECLIPSE[0]);
-    const t1 = parseTimeAndCreateDate(city.ECLIPSE[1]);
-    const t2 = parseTimeAndCreateDate(city.ECLIPSE[2]);
-    const t3 = parseTimeAndCreateDate(city.ECLIPSE[3]);
-    const t4 = parseTimeAndCreateDate(city.ECLIPSE[4]);
+    if (city.ECLIPSE.length === 6) {
+      const t0 = parseTimeAndCreateDate(city.ECLIPSE[0]);
+      const t1 = parseTimeAndCreateDate(city.ECLIPSE[1]);
+      const t2 = parseTimeAndCreateDate(city.ECLIPSE[2]);
+      const t3 = parseTimeAndCreateDate(city.ECLIPSE[3]);
+      const t4 = parseTimeAndCreateDate(city.ECLIPSE[4]);
+      const t5 = parseTimeAndCreateDate(city.ECLIPSE[5]);
 
-    geoJSON.features.push({
-      type: "Feature",
-      geometry: {
-        type: "Point",
-        coordinates: [city.LON, city.LAT],
-      },
-      properties: {
-        name: city.NAME,
-        state: city.STATE,
-        t0,
-        t1,
-        t2,
-        t3,
-        t4,
-      },
-    });
+      geoJSON.features.push({
+        type: "Feature",
+        geometry: {
+          type: "Point",
+          coordinates: [city.LON, city.LAT],
+        },
+        properties: {
+          name: city.NAME,
+          state: city.STATE,
+          t0,
+          t1,
+          t2,
+          t3,
+          t4,
+          t5,
+        },
+      });
+    }
   });
 
   // create a new blob from the GeoJSON feature collection
@@ -375,10 +379,10 @@ async function queryInformation(
     const averageTime = (times: number[]) =>
       new Date(times.reduce((a, b) => a + b, 0) / times.length).toLocaleTimeString();
 
-    const cityTimesQueryResult = await query(cityTimesLayer, view.extent, ["t0", "t4"]);
+    const cityTimesQueryResult = await query(cityTimesLayer, view.extent, ["t0", "t5"]);
     if (cityTimesQueryResult.features.length) {
       const startTimes = cityTimesQueryResult.features.map((feature) => feature.attributes.t0);
-      const endTimes = cityTimesQueryResult.features.map((feature) => feature.attributes.t4);
+      const endTimes = cityTimesQueryResult.features.map((feature) => feature.attributes.t5);
       updateQueryPanel(startTimeListItem, startTimeChip, averageTime(startTimes));
       updateQueryPanel(endTimeListItem, endTimeChip, averageTime(endTimes));
     } else {
